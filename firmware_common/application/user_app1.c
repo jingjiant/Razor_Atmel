@@ -137,59 +137,44 @@ State Machine Function Definitions
 static void UserApp1SM_Idle(void)
 {
  static bool bCycle=TRUE;
-  static u32 u32Number=512;
+  static u32 u32Number=0;
   static u32 u32Counter=0;
-  static bool bLightIsOn=FALSE;
-  static u16  u16SecondCount=0;
+  static u32 u32Counter1=0;
   
-  u32Counter++;/*increase 1 per ms*/
-  if(u32Counter==u32Number)           /*Timing for 2 seconds*/                
-  {     
-    u32Counter=0;
-    if(bLightIsOn)
-    {
-      HEARTBEAT_OFF();
-      bLightIsOn=FALSE;
-    }
-     else
-    {
+  u32Counter++;/*Increase 1 per ms*/  
+  if(u32Counter<=u32Number)
+  {
       HEARTBEAT_ON();
-      bLightIsOn=TRUE; 
-    }
+  }
+  else if(u32Counter<=10)
+  {
+      HEARTBEAT_OFF();
+  }
+  else
+  {
+    u32Counter=0;
   }
   
-    u16SecondCount++;
-  if(u16SecondCount>=2000)
-  {  
-     u16SecondCount=0;
-     if(bCycle)                 /* increased the frequency*/
-     {      
-       if((u32Number/2)<=8)
-       {
-            bCycle=FALSE;
-            u32Number=16;
-            u32Counter=0;
-       }
-       else
-       {
-            u32Number/=2;
-            u32Counter=0;         
-       }       
-     }
-     else                       /*Reduce the frequency*/
-     {      
-        if((u32Number*2)>=1024)
-        {         
-            bCycle=TRUE;
-            u32Number=256;
-            u32Counter=0;
-        }
-        else
-        {
-            u32Number*=2;
-            u32Counter=0;         
-        }       
-     }
+  u32Counter1++;
+  if(u32Counter1==100)          /*Time 100 milliseconds*/
+  {
+    u32Counter1=0;
+    if(bCycle)                  /*Increase duty cycle*/
+    {
+      u32Number++;
+      if(u32Number==10)
+      {
+        bCycle=FALSE;
+      }
+    }
+    else                        /*Reduce duty cycle*/
+    {
+      u32Number--;
+      if(u32Number==0)
+      {
+        bCycle=TRUE;
+      }
+    }
     
   }
 } /* end UserApp1SM_Idle() */
