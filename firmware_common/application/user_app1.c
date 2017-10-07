@@ -136,7 +136,108 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  static u8 u8Counter2=0;
+  static u16 u16Counter1=0;
+  u16Counter1++;
+  if(u16Counter1==1)
+  {
+    LedPWM(WHITE,LED_PWM_100);
+  }
+  if(u16Counter1==1000)
+  {
+    LedPWM(PURPLE,LED_PWM_70);
+    LedPWM(WHITE,LED_PWM_0);
+  }
+    if(u16Counter1==1800)
+  {
+    LedPWM(BLUE,LED_PWM_50);
+    LedPWM(PURPLE,LED_PWM_0);
+  }
+    if(u16Counter1==2400)
+  {
+    LedPWM(CYAN,LED_PWM_30);
+    LedPWM(BLUE,LED_PWM_0);
+  }
+    if(u16Counter1==2800)
+  {
+    LedPWM(GREEN,LED_PWM_20);
+    LedPWM(CYAN,LED_PWM_0);
+  }
+    if(u16Counter1==3100)
+  {
+    LedPWM(YELLOW,LED_PWM_15);
+    LedPWM(GREEN,LED_PWM_0);
+  }
+    if(u16Counter1==3300)
+  {
+    LedPWM(ORANGE,LED_PWM_10);
+    LedPWM(YELLOW,LED_PWM_0);
+  }
+    if(u16Counter1==3400)
+  {
+    LedPWM(RED,LED_PWM_5);
+    LedPWM(ORANGE,LED_PWM_0); 
+  }
+  if(u16Counter1==3450)
+  {
+    u16Counter1=0;
+    LedPWM(RED,LED_PWM_0);
+    u8Counter2++;
+  }
+  if(u8Counter2==7)
+  {
+    u8Counter2=0;
+  }
+  switch(u8Counter2)
+  {
+    case 0:
+    LedOn(LCD_RED);
+    LedOn(LCD_BLUE);
+    LedOn(LCD_GREEN);
+    break;
+    
+    case 1:
+    LedOff(LCD_RED);
+    LedOn(LCD_BLUE);
+    LedOn(LCD_GREEN);
+    break;
+    
+    case 2:
+    LedOn(LCD_RED);
+    LedOff(LCD_BLUE);
+    LedOn(LCD_GREEN);
+    break;
+    
+    case 3:
+    LedOff(LCD_RED);
+    LedOff(LCD_BLUE);
+    LedOn(LCD_GREEN);
+    break;
+    
+    case 4:
+    LedOn(LCD_RED);
+    LedOn(LCD_BLUE);
+    LedOff(LCD_GREEN);
+    break;
+    
+    case 5:
+    LedOff(LCD_RED);
+    LedOn(LCD_BLUE);
+    LedOff(LCD_GREEN);
+    break;
+    
+    case 6:
+    LedOn(LCD_RED);
+    LedOff(LCD_BLUE);
+    LedOff(LCD_GREEN);
+    break;
+    
+    default:
+    LedOff(LCD_RED);
+    LedOff(LCD_BLUE);
+    LedOff(LCD_GREEN);
+    break;
+  }
 } /* end UserApp1SM_Idle() */
     
 
