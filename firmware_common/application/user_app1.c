@@ -87,7 +87,8 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  LedOff(GREEN);
+  LedOff(RED);
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +137,103 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+      static u16 u16KeyTable[10];
+      static u8 u8Number=0;
+      static u16 u16MiMa[10];
+      static u8 u8Number1=0;
+      static bool bXiuGai=TRUE;
+      static u8 u8i=0;
+      static bool bEqual;
+  
+    if(!bXiuGai)              /*printf password*/
+    {
+     
+      if(WasButtonPressed(BUTTON0))
+      {
+        ButtonAcknowledge(BUTTON0);
+        u16KeyTable[u8Number]=0;
+        u8Number++;
+      }
+        if(WasButtonPressed(BUTTON1))
+      {
+        ButtonAcknowledge(BUTTON1);
+        u16KeyTable[u8Number]=1;
+        u8Number++;
+      }
+        if(WasButtonPressed(BUTTON2))
+      {
+        ButtonAcknowledge(BUTTON2);
+        u16KeyTable[u8Number]=2;
+        u8Number++;
+      }
+    }
+    if(WasButtonPressed(BUTTON3))
+    {
+      ButtonAcknowledge(BUTTON3);
+      bEqual=TRUE;
+        if(bXiuGai)             /*Confirm the password*/
+        {
+          bXiuGai=FALSE;
+          LedOn(RED);
+          LedOff(GREEN);         
+        }
+        else                    /*Compare the password*/
+        {
+          for(u8i=0;u8i<=u8Number1;u8i++)
+          {
+              if(u16KeyTable[u8i]!=u16MiMa[u8i])
+              {
+                bEqual=FALSE;
+              }
+       
+        
+          }
+            if(!bEqual)
+            {
+              LedBlink(RED,LED_1HZ);
+              LedOff(GREEN);
+              u8Number=0;
+            }
+          
+           if(bEqual)
+            {
+              LedBlink(GREEN,LED_1HZ);
+              LedOff(RED);
+               
+            }
+        }   
+    }
+    
+    if(IsButtonHeld(BUTTON3,2000))      /*Press the button for 2 seconds*/
+    {                                   /*Enter the change password mode*/                                                                
+       LedBlink(RED,LED_1HZ);
+       LedBlink(GREEN,LED_1HZ);
+       bXiuGai=TRUE; 
+       u8Number=0;
+       u8Number1=0;
+       
+    }
+    if(bXiuGai)                 /*set password*/
+    {
+        if(WasButtonPressed(BUTTON0))
+      {
+        ButtonAcknowledge(BUTTON0);
+        u16MiMa[u8Number1]=0;
+        u8Number1++;
+      }
+        if(WasButtonPressed(BUTTON1))
+      {
+        ButtonAcknowledge(BUTTON1);
+        u16MiMa[u8Number1]=1;
+        u8Number1++;
+      }
+        if(WasButtonPressed(BUTTON2))
+      {
+        ButtonAcknowledge(BUTTON2);
+        u16MiMa[u8Number1]=2;
+        u8Number1++;
+      }
+    }
 } /* end UserApp1SM_Idle() */
     
 
