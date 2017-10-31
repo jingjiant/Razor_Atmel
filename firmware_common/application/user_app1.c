@@ -87,7 +87,7 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  LedOff(RED);
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,108 +136,62 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  static u8 u8Counter2=0;
-  static u16 u16Counter1=0;
-  u16Counter1++;
-  if(u16Counter1==1)
-  {
-    LedPWM(WHITE,LED_PWM_100);
-  }
-  if(u16Counter1==1000)
-  {
-    LedPWM(PURPLE,LED_PWM_70);
-    LedPWM(WHITE,LED_PWM_0);
-  }
-    if(u16Counter1==1800)
-  {
-    LedPWM(BLUE,LED_PWM_50);
-    LedPWM(PURPLE,LED_PWM_0);
-  }
-    if(u16Counter1==2400)
-  {
-    LedPWM(CYAN,LED_PWM_30);
-    LedPWM(BLUE,LED_PWM_0);
-  }
-    if(u16Counter1==2800)
-  {
-    LedPWM(GREEN,LED_PWM_20);
-    LedPWM(CYAN,LED_PWM_0);
-  }
-    if(u16Counter1==3100)
-  {
-    LedPWM(YELLOW,LED_PWM_15);
-    LedPWM(GREEN,LED_PWM_0);
-  }
-    if(u16Counter1==3300)
-  {
-    LedPWM(ORANGE,LED_PWM_10);
-    LedPWM(YELLOW,LED_PWM_0);
-  }
-    if(u16Counter1==3400)
-  {
-    LedPWM(RED,LED_PWM_5);
-    LedPWM(ORANGE,LED_PWM_0); 
-  }
-  if(u16Counter1==3450)
-  {
-    u16Counter1=0;
-    LedPWM(RED,LED_PWM_0);
-    u8Counter2++;
-  }
-  if(u8Counter2==7)
-  {
-    u8Counter2=0;
-  }
-  switch(u8Counter2)
-  {
-    case 0:
-    LedOn(LCD_RED);
-    LedOn(LCD_BLUE);
-    LedOn(LCD_GREEN);
-    break;
+      static u16 u16Counter=0;
+      static LedRateType PWM[]={LED_PWM_0,LED_PWM_10,LED_PWM_20,LED_PWM_30,LED_PWM_40,LED_PWM_50,LED_PWM_60,LED_PWM_70,LED_PWM_80,LED_PWM_90,LED_PWM_100};
+      static u8 u8Number=0;
+      static u16 u16Counter1=0;
+      static bool bCycle;
+      static bool bPwm;
     
-    case 1:
-    LedOff(LCD_RED);
-    LedOn(LCD_BLUE);
-    LedOn(LCD_GREEN);
-    break;
-    
-    case 2:
-    LedOn(LCD_RED);
-    LedOff(LCD_BLUE);
-    LedOn(LCD_GREEN);
-    break;
-    
-    case 3:
-    LedOff(LCD_RED);
-    LedOff(LCD_BLUE);
-    LedOn(LCD_GREEN);
-    break;
-    
-    case 4:
-    LedOn(LCD_RED);
-    LedOn(LCD_BLUE);
-    LedOff(LCD_GREEN);
-    break;
-    
-    case 5:
-    LedOff(LCD_RED);
-    LedOn(LCD_BLUE);
-    LedOff(LCD_GREEN);
-    break;
-    
-    case 6:
-    LedOn(LCD_RED);
-    LedOff(LCD_BLUE);
-    LedOff(LCD_GREEN);
-    break;
-    
-    default:
-    LedOff(LCD_RED);
-    LedOff(LCD_BLUE);
-    LedOff(LCD_GREEN);
-    break;
-  }
+      u16Counter++;
+    if(u16Counter==1)
+    {
+      LedBlink(RED,LED_1HZ);    /*RedBlink 4 seconds*/
+    }
+    if(u16Counter==4000)
+    {
+      LedOn(RED);               /*Red on 2 seconds*/
+    }
+      if(u16Counter==6000)
+    {
+      LedOff(RED);              /*Red off 2 seconds*/
+    }
+    if(u16Counter==7000)
+    {
+      u16Counter1=0;
+      bPwm=TRUE;
+    }  
+  
+    u16Counter1++;
+    if(u16Counter1==1000)
+    {
+        u16Counter1=0;
+       if(bPwm)                 /*Change the pwm of red*/
+       {
+           LedPWM(RED,PWM[u8Number]); 
+         if(u8Number==0)
+         {
+           bCycle=TRUE;
+         }
+         if(u8Number==10)
+         {
+           bCycle=FALSE;
+         }
+         if(bCycle)
+         {
+           u8Number++;
+         }
+         if(!bCycle)
+         {
+             u8Number--;
+             if(u8Number==0)
+             {
+               u16Counter=0;
+               bPwm=FALSE;
+             }
+         }
+       }
+    }
 } /* end UserApp1SM_Idle() */
     
 
