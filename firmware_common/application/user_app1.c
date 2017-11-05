@@ -85,9 +85,14 @@ Requires:
 Promises:
   - 
 */
+static u8 UserApp_au8UserInputBuffer[U16_USER_INPUT_BUFFER_SIZE];
+
 void UserApp1Initialize(void)
 {
- 
+    for(u16 i = 0; i < U16_USER_INPUT_BUFFER_SIZE  ; i++)
+      {
+        UserApp_au8UserInputBuffer[i] = 0;
+      }
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +141,74 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
+    static u8 u8NumCharsMessage[] = "\n\rError,Please Printf'Q'~'U','1'~'7','A'~'J' ";
+    static u32 au32Tone[7][3]=
+    {
+      {262,523,1046},
+      {294,578,1175},
+      {330,628,1318},
+      {349,698,1397},
+      {392,784,1568},
+      {440,880,1760},
+      {494,998,1976}
+    };
+    static u8 au8ArryHigh[]={'Q','W','E','R','T','Y','U'};
+    static u8 au8ArryMedium[]={'1','2','3','4','5','6','7'};
+    static u8 au8ArryLow[]={'A','S','D','F','G','H','J'};
+    static u8 au8ArryError[]={'Q','W','E','R','T','Y','U','1','2','3','4','5','6','7','A','S','D','F','G','H','J'};/*judge the button whether correct*/
+    u8 u8CharCount;
+    static u8 u8Number=0; 
+    static u8 u8Number2=0;
+    bool bFlag=FALSE;
+    
+    u8CharCount = DebugScanf(UserApp_au8UserInputBuffer);
+    UserApp_au8UserInputBuffer[u8CharCount] = '\0';
+    
+    for(u8 i=0;i<7;i++)         /*high pitch*/
+        {
+            if(au8ArryHigh[i]==UserApp_au8UserInputBuffer[0])
+            {
+              u8Number=i;
+              u8Number2=2;
+            }
+        }
+    
+    for(u8 i=0;i<7;i++)         /*alto voice*/
+        {
+            if(au8ArryMedium[i]==UserApp_au8UserInputBuffer[0])
+            {
+              u8Number=i;
+              u8Number2=1;     
+            }
+        }
+    
+    for(u8 i=0;i<7;i++)         /*low pitch*/        
+        {
+            if(au8ArryLow[i]==UserApp_au8UserInputBuffer[0])
+            {
+              u8Number=i;
+              u8Number2=0;        
+            }
+        }
 
+    for(u8 i=0;i<21;i++)        /*judge the button whether correct*/
+        {
+            if(au8ArryError[i]==UserApp_au8UserInputBuffer[0])
+            {
+              bFlag=TRUE;         
+            }
+        }
+
+    if(u8CharCount)
+        {
+            PWMAudioSetFrequency(BUZZER1,au32Tone[u8Number][u8Number2]);
+            if(!bFlag)          /*if button error,printf error*/
+              {
+                DebugPrintf(u8NumCharsMessage);
+              }
+        }
+      PWMAudioOn(BUZZER1);
+    
 } /* end UserApp1SM_Idle() */
     
 
