@@ -85,19 +85,24 @@ Requires:
 Promises:
   - 
 */
+static u8 UserApp_au8UserInputBuffer[U16_USER_INPUT_BUFFER_SIZE];
 void UserApp1Initialize(void)
 {
+      for(u16 i = 0; i < U16_USER_INPUT_BUFFER_SIZE  ; i++)
+        {
+          UserApp_au8UserInputBuffer[i] = 0;
+        }
  
   /* If good initialization, set state to Idle */
-  if( 1 )
-  {
-    UserApp1_StateMachine = UserApp1SM_Idle;
-  }
-  else
-  {
-    /* The task isn't properly initialized, so shut it down and don't run */
-    UserApp1_StateMachine = UserApp1SM_Error;
-  }
+    if( 1 )
+    {
+      UserApp1_StateMachine = UserApp1SM_Idle;
+    }
+    else
+    {
+      /* The task isn't properly initialized, so shut it down and don't run */
+      UserApp1_StateMachine = UserApp1SM_Error;
+    }
 
 } /* end UserApp1Initialize() */
 
@@ -136,10 +141,52 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
-} /* end UserApp1SM_Idle() */
+    static u8 u8NumCharsMessage[] = "Jingjian";
+    static u8 u8BufferMessage[]   = "\n\rThe appear times of Jingjian:";
+    u8 u8CharCount;
+    static u8 u8Number=0; 
+  
+  if(WasButtonPressed(BUTTON0))
+  {
+    ButtonAcknowledge(BUTTON0);
+    u8CharCount = DebugScanf(UserApp_au8UserInputBuffer);
+    UserApp_au8UserInputBuffer[u8CharCount] = '\0';
+    u8Number=fun(UserApp_au8UserInputBuffer,u8NumCharsMessage);/*name appear times*/
+    DebugPrintf(u8BufferMessage);
+    DebugPrintNumber(u8Number);
+    DebugLineFeed();
+    DebugLineFeed();
+  }
+} 
     
-
+int fun(char *str, char *substr) /*name appear times*/
+{
+    int i,j,len1,len2,m=0,n=0; 
+    len1=strlen(str); 
+    len2=strlen(substr);
+    
+    if(len1<len2) 
+      {
+        return 0;
+      }
+    
+    for(i=0;i<=len1-len2;i++)
+    {
+        m=i;
+        for(j=0;j<len2;j++)
+          {
+            if(str[m++]!=substr[j])
+            {
+               break;
+            }
+            if(m>=i+len2)
+            {
+              n++;
+            }
+          }
+    }
+    return n;
+}
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
 static void UserApp1SM_Error(void)          
