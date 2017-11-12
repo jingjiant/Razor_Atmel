@@ -164,7 +164,7 @@ static void UserApp1SM_Idle(void)
   static u8 au8Arry2[20];
   static bool bFlag=FALSE;
   
-  if(WasButtonPressed(BUTTON3))
+  if(WasButtonPressed(BUTTON3))/*Enter select mode*/
   {
     ButtonAcknowledge(BUTTON3);
     u8States=1;
@@ -203,7 +203,7 @@ static void UserApp1SM_Idle(void)
       u8States=3;
     }
   }
-  if(u8States==2)
+  if(u8States==2)               /*Assignment1*/
   {
     if(WasButtonPressed(BUTTON1))
     {
@@ -290,7 +290,7 @@ static void UserApp1SM_Idle(void)
       LedBlink(RED,Blink[u8Number7]);
     }
   }
-  if(u8States==3)
+  if(u8States==3)               /*Assignment2*/
   {
     u8CharCount = DebugScanf(UserApp_au8UserInputBuffer);
     UserApp_au8UserInputBuffer[u8CharCount] = '\0';
