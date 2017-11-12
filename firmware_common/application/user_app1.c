@@ -85,9 +85,17 @@ Requires:
 Promises:
   - 
 */
+static u8 UserApp_au8UserInputBuffer[U16_USER_INPUT_BUFFER_SIZE];
 void UserApp1Initialize(void)
 {
- 
+  for(u16 i = 0; i < U16_USER_INPUT_BUFFER_SIZE  ; i++)
+  {
+    UserApp_au8UserInputBuffer[i] = 0;
+  }
+  
+  LCDCommand(LCD_CLEAR_CMD);
+  LCDMessage(LINE1_START_ADDR, "Press Button3!");
+  LCDMessage(LINE2_START_ADDR, "Enter select mode!");
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,9 +144,239 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  static u32 u8Number6=100;
+  static u8 u8States=0;
+  static u8 UserApp_NameStart1;
+  static u8 UserApp_NameStart2;
+  static LedRateType Blink[]={LED_0_5HZ,LED_1HZ,LED_2HZ,LED_4HZ,LED_8HZ};
+  static LedRateType Pwm[]={LED_PWM_15,LED_PWM_30,LED_PWM_50,LED_PWM_70,LED_PWM_100};
+  static u8 u8Number7=0;
+  static u16 u8Number8=0;
+  u8 u8CharCount;
+  static u8 u8Number1=0; 
+  static u8 u8Number2=0; 
+  static u8 u8Number3=0; 
+  static u8 u8Number4=0; 
+  static u8 u8Number5=0; 
+  static u8 u8Addres1=LINE1_START_ADDR;
+  static u8 u8Addres2=LINE2_START_ADDR;
+  static u8 au8Arry[200];
+  static u8 au8Arry2[20];
+  static bool bFlag=FALSE;
+  
+  if(WasButtonPressed(BUTTON3))
+  {
+    ButtonAcknowledge(BUTTON3);
+    u8States=1;
+    LCDCommand(LCD_CLEAR_CMD);
+    LCDMessage(LINE1_START_ADDR, "Press BUTTON0!");
+    LCDMessage(LINE2_START_ADDR, "Press BUTTON1!");
+    LedOff(WHITE);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(RED);
+    u8Number1=0;
+    u8Number2=0;
+    u8Number3=0;
+    u8Addres1=LINE1_START_ADDR;
+  }
+  
+  if(u8States==1)
+  {
+    if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      u8States=2;
+      LCDCommand(LCD_CLEAR_CMD);
+      LCDMessage(LINE1_START_ADDR, "JingJian");
+      UserApp_NameStart1 = LINE1_START_ADDR;
+      UserApp_NameStart2=LINE2_START_ADDR;
+    }
+    if(WasButtonPressed(BUTTON1))
+    {
+      LCDCommand(LCD_CLEAR_CMD);
+      ButtonAcknowledge(BUTTON1);
+      u8States=3;
+    }
+  }
+  if(u8States==2)
+  {
+    if(WasButtonPressed(BUTTON1))
+    {
+      if(u8Number7==4)
+      {
+        u8Number7=0;
+      }
+      else
+      {
+        u8Number7++;
+      }
+      ButtonAcknowledge(BUTTON1);
+      PWMAudioOff(BUZZER2);
+      u8Number6=0;
+      if(UserApp_NameStart2==LINE2_END_ADDR-7)
+      {
+        PWMAudioSetFrequency(BUZZER1,200);
+        PWMAudioOn(BUZZER1);
+      }
+      
+      else
+      {
+        if(UserApp_NameStart1==0x14)
+        {
+          UserApp_NameStart2++;
+          LCDCommand(LCD_CLEAR_CMD);
+          LCDMessage(UserApp_NameStart2, "JingJian");
+        }
+        else
+        {
+          UserApp_NameStart1++;      
+          LCDCommand(LCD_CLEAR_CMD);
+          LCDMessage(UserApp_NameStart1, "JingJian");
+          LCDMessage(UserApp_NameStart1+20, "JingJian");
+        }
+      }
+    }
+    if(WasButtonPressed(BUTTON0))
+    {
+      if(u8Number7==0)
+      {
+        u8Number7=4;
+      }
+      else
+      {
+        u8Number7--;
+      }
+      ButtonAcknowledge(BUTTON0);
+      PWMAudioOff(BUZZER1);
+      u8Number6=0;
+      if(UserApp_NameStart1==LINE1_START_ADDR)
+      {
+        PWMAudioSetFrequency(BUZZER2,2000);
+        PWMAudioOn(BUZZER2);
+      }  
+      else
+      {
+        if(UserApp_NameStart2==0x40)
+        {
+          UserApp_NameStart1--;
+          LCDCommand(LCD_CLEAR_CMD);
+          LCDMessage(UserApp_NameStart1, "JingJian");
+          LCDMessage(UserApp_NameStart1+20, "JingJian");
+        }
+        else
+        {
+          UserApp_NameStart2--;      
+          LCDCommand(LCD_CLEAR_CMD);
+          LCDMessage(UserApp_NameStart2, "JingJian");
+        }
+      }
+    }
+    u8Number8++;
+    if(u8Number8==2000)
+    {
+      u8Number8=0;
+      LedPWM(WHITE,Pwm[u8Number7]);
+      LedPWM(BLUE,Pwm[u8Number7]);
+      LedPWM(GREEN,Pwm[u8Number7]);
+      LedPWM(ORANGE,Pwm[u8Number7]);
+      LedBlink(PURPLE,Blink[u8Number7]);
+      LedBlink(CYAN,Blink[u8Number7]);
+      LedBlink(YELLOW,Blink[u8Number7]);
+      LedBlink(RED,Blink[u8Number7]);
+    }
+  }
+  if(u8States==3)
+  {
+    u8CharCount = DebugScanf(UserApp_au8UserInputBuffer);
+    UserApp_au8UserInputBuffer[u8CharCount] = '\0';
+    if(u8CharCount==1)
+    {
+      if(u8Number1==20)
+      {
+        au8Arry[u8Number3]=UserApp_au8UserInputBuffer[0];
+        u8Number3++;
+      }
+      if(u8Number1<20)
+      {
+        if(UserApp_au8UserInputBuffer[0]==0x0D)
+        {   
+          LCDClearChars(LINE2_START_ADDR,20 );
+          DebugPrintf("\n\rHave a newline!\n\r");
+          u8Number1=19;
+          u8Number2=0;
+          u8Number3=0;
+          u8Addres2=LINE2_START_ADDR;
+        }   
+        LCDMessage(u8Addres1+u8Number1,UserApp_au8UserInputBuffer);
+        u8Number1++;
+        if(u8Number1==20)
+        {
+          u8Number2=0;
+          LCDClearChars(LINE2_START_ADDR,20 );
+        }   
+      }
+      else   if(u8Number1==20)
+      {
+        if(UserApp_au8UserInputBuffer[0]==0x0D)
+        {
+          LCDClearChars(LINE1_START_ADDR,20 );
+          DebugPrintf("\n\rHave a newline!\n\r");
+          u8Number1=0;
+          u8Number3=0;
+          u8Addres1=LINE1_START_ADDR;
+        }
+        if(u8Number2<20)
+        {
+          LCDMessage(u8Addres2+u8Number2,UserApp_au8UserInputBuffer);
+          u8Number2++;
+        }
+        else
+        {
+          bFlag=TRUE;
+        }
+      }
+      if(bFlag)
+      {
+        if(UserApp_au8UserInputBuffer[0]==0x0D)
+        {
+          LCDClearChars(LINE1_START_ADDR,20 );
+          DebugPrintf("\n\rHave a newline!\n\r");
+          u8Number1=0;
+          u8Number3=0;
+          u8Addres1=LINE1_START_ADDR;
+          bFlag=FALSE;
+        }
+        u8Number4=u8Number3-20;
+        for(u8Number5=0;u8Number5<20;u8Number5++)
+        {
+          au8Arry2[u8Number5]=au8Arry[u8Number4];
+          u8Number4++;
+        }  
+        LCDMessage(LINE2_START_ADDR, au8Arry2);
+      }    
+    }  
+  }
+  
+  u8Number6++;
+  if(u8Number6<100)
+  {
+    PWMAudioSetFrequency(BUZZER1,523);
+    PWMAudioOn(BUZZER1);
+  }
+  else
+  {   
+    if(UserApp_NameStart2!=LINE2_END_ADDR-7)
+    {
+      PWMAudioOff(BUZZER1);
+    }
+  }  
 } /* end UserApp1SM_Idle() */
-    
+
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
