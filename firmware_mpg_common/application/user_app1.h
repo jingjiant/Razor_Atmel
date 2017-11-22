@@ -44,7 +44,11 @@ Function Declarations
 /*--------------------------------------------------------------------------------------------------------------------*/
 void UserApp1Initialize(void);
 void UserApp1RunActiveState(void);
-
+u8 Color(u8 *au8Arry);
+u32 StartTime(u8 *au8Arry);
+u32 EndTime(u8 *au8Arry);
+u32 jisuan(u8 *au8Arry1,u8 *au8Arry2);
+u8 u8Arry(u32 Number);
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Private functions                                                                                                  */
