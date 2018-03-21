@@ -87,7 +87,8 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  LCDCommand(LCD_CLEAR_CMD);
+  PWMAudioSetFrequency(BUZZER1, 200);
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -111,15 +112,15 @@ All state machines have a TOTAL of 1ms to execute, so on average n state machine
 may take 1ms / n to execute.
 
 Requires:
-  - State machine function pointer points at current state
+- State machine function pointer points at current state
 
 Promises:
-  - Calls the function to pointed by the state machine function pointer
+- Calls the function to pointed by the state machine function pointer
 */
 void UserApp1RunActiveState(void)
 {
   UserApp1_StateMachine();
-
+  
 } /* end UserApp1RunActiveState */
 
 
@@ -136,7 +137,80 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  static u8 u8State=0;
+  static u8 u8Buzzer=0;
+  static u16 u16Count=0;
+  u8 u8CharCount;
+  static u8 u8Arry[10];
+  
+  u8CharCount = DebugScanf(u8Arry); 
+  if(u8CharCount==1)
+  {
+    LedOff(WHITE);
+    LedOff(PURPLE);
+    LedOff(BLUE);
+    LedOff(CYAN);
+    LedOff(RED);
+    LedOff(ORANGE);
+    LedOff(YELLOW);
+    LedOff(GREEN);
+    LedOff(LCD_RED);
+    LedOff(LCD_BLUE);
+    LedOff(LCD_GREEN);
+    if(u8Arry[0]==0x31)         /*INPUT 1*/
+    {
+      u8State=1;
+      u8Buzzer=0;               /*CLOSE BUZZER*/
+      PWMAudioOff(BUZZER1);
+    }
+    if(u8Arry[0]==0x32)         /*INPUT 2*/
+    {
+      u8State=2;
+      u8Buzzer=1;               /*OPEN BUZZER*/
+    }
+  }
+  if(u8State==1)                /*ENTER STATE 1*/
+  {
+    LCDMessage(LINE1_START_ADDR+6, "STATE 1");
+    LedOn(WHITE);
+    LedOn(PURPLE);
+    LedOn(BLUE);
+    LedOn(CYAN);
+    LedOn(LCD_RED);
+    LedOn(LCD_BLUE);
+    DebugPrintf("\n\rEntering state 1\n\r");
+    u8State=0;
+  }
+  
+  if(u8State==2)                /*ENTER STATE 2*/
+  {
+    LCDMessage(LINE1_START_ADDR+6, "STATE 2");
+    LedBlink(GREEN, LED_1HZ);
+    LedBlink(YELLOW, LED_2HZ);
+    LedBlink(ORANGE, LED_4HZ);
+    LedBlink(RED, LED_8HZ); 
+    DebugPrintf("\n\rEntering state 2\n\r");
+    LedPWM(LCD_RED, LED_PWM_100);
+    LedPWM(LCD_GREEN, LED_PWM_10);  
+    u8State=0;
+  }
+  if(u8Buzzer==1)               /*100ms 200Hz tone every second*/
+  {
+    
+    if(u16Count==0)
+    {
+      PWMAudioOn(BUZZER1);
+    }
+    u16Count++;
+    if(u16Count==100)
+    {
+      PWMAudioOff(BUZZER1);     
+    }
+    if(u16Count==1000)
+    {
+      u16Count=0;
+    }
+  }
 } /* end UserApp1SM_Idle() */
     
 
