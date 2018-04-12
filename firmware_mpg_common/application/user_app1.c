@@ -96,6 +96,7 @@ Promises:
 void UserApp1Initialize(void)
 {
   u8 au8WelcomeMessage[] = "ANT Master";
+  
 
   /* Write a weclome message on the LCD */
 #if EIE1
@@ -103,6 +104,9 @@ void UserApp1Initialize(void)
   LCDCommand(LCD_CLEAR_CMD);
   for(u32 i = 0; i < 10000; i++);
   LCDMessage(LINE1_START_ADDR, au8WelcomeMessage);
+   LCDCommand(LCD_CLEAR_CMD);
+   LCDMessage(LINE1_START_ADDR, "AllMessage: ");
+   LCDMessage(LINE2_START_ADDR, "MissMessage:");
 #endif /* EIE1 */
   
 #if 0 // untested for MPG2
@@ -198,9 +202,15 @@ static void UserApp1SM_AntChannelAssign()
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  static u8 au8TestMessage[] = {0, 0, 0, 0, 0xA5, 0, 0, 0};
+  static u8 u8CurrentEventCodeExample;
+  u8CurrentEventCodeExample = G_au8AntApiCurrentMessageBytes[ANT_TICK_MSG_EVENT_CODE_INDEX];
+  static u8 au8TestMessage[] = {0x5B, 0, 0, 0, 0xFF, 0, 0, 0};
+  static u8 au8MissMessage[3]={0,0,0};
+  static u8 au8AllMessage[3]={0,0,0};
   u8 au8DataContent[] = "xxxxxxxxxxxxxxxx";
-  
+  static u8 au8MissMessageDisplay[6]="xxxxxx";
+  static u8 au8AllMessageDisplay[6]="xxxxxx";
+
   /* Check all the buttons and update au8TestMessage according to the button state */ 
   au8TestMessage[0] = 0x00;
   if( IsButtonPressed(BUTTON0) )
@@ -230,6 +240,7 @@ static void UserApp1SM_Idle(void)
   
   if( AntReadAppMessageBuffer() )
   {
+   
      /* New message from ANT task: check what it is */
     if(G_eAntApiCurrentMessageClass == ANT_DATA)
     {
@@ -249,18 +260,47 @@ static void UserApp1SM_Idle(void)
       
     }
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
-    {
-     /* Update and queue the new message data */
-      au8TestMessage[7]++;
-      if(au8TestMessage[7] == 0)
+    {       
+      
+      for(u8 i = 0; i < 3; i++)
       {
-        au8TestMessage[6]++;
-        if(au8TestMessage[6] == 0)
+        au8MissMessageDisplay[2 * i]     = HexToASCIICharUpper(au8MissMessage[i] / 16);
+        au8MissMessageDisplay[2 * i + 1] = HexToASCIICharUpper(au8MissMessage[i] % 16);
+        au8AllMessageDisplay[2 * i]     = HexToASCIICharUpper(au8AllMessage[i] / 16);
+        au8AllMessageDisplay[2 * i + 1] = HexToASCIICharUpper(au8AllMessage[i] % 16);
+      }
+      if(u8CurrentEventCodeExample== 0x06)
+      {
+        au8MissMessage[2]++;
+        if(au8MissMessage[2] == 0)
         {
-          au8TestMessage[5]++;
+          au8MissMessage[1]++;
+          if(au8MissMessage[1] == 0)
+          {
+            au8MissMessage[0]++;
+          }
         }
       }
-      AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
+      au8AllMessage[2]++;
+      if(au8AllMessage[2] == 0)
+      {
+        au8AllMessage[1]++;
+        if(au8AllMessage[1] == 0)
+        {
+          au8AllMessage[0]++;
+        }
+      }
+      au8TestMessage[0]=0x5B;
+      au8TestMessage[1]=au8MissMessage[0];
+      au8TestMessage[2]=au8MissMessage[1];
+      au8TestMessage[3]=au8MissMessage[2];
+      au8TestMessage[5]=au8AllMessage[0];
+      au8TestMessage[6]=au8AllMessage[1];
+      au8TestMessage[7]=au8AllMessage[2];
+      /* Update and queue the new message data */
+      LCDMessage(LINE2_START_ADDR+12,au8MissMessageDisplay);
+      LCDMessage(LINE1_START_ADDR+12,au8AllMessageDisplay);
+      AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
     }
   } /* end AntReadData() */
   
