@@ -297,11 +297,13 @@ static void UserApp1SM_WaitChannelOpen(void)
 /* Channel is open, so monitor data */
 static void UserApp1SM_ChannelOpen(void)
 {
+  static s8 s8RssiChannel0;
   static u8 u8LastState = 0xff;
   static u8 au8TickMessage[] = "EVENT x\n\r";  /* "x" at index [6] will be replaced by the current code */
   static u8 au8DataContent[] = "xxxxxxxxxxxxxxxx";
   static u8 au8LastAntData[ANT_APPLICATION_MESSAGE_BYTES] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
   static u8 au8TestMessage[] = {0, 0, 0, 0, 0xA5, 0, 0, 0};
+  static u8 au8RssiMessage[]="RSSI:-xxx dbm";
   bool bGotNewData;
 
   /* Check for BUTTON0 to close channel */
@@ -338,7 +340,11 @@ static void UserApp1SM_ChannelOpen(void)
     if(G_eAntApiCurrentMessageClass == ANT_DATA)
     {
       UserApp1_u32DataMsgCount++;
-      
+      s8RssiChannel0 = G_sAntApiCurrentMessageExtData.s8RSSI;
+      s8RssiChannel0 = s8RssiChannel0/(-1);
+      au8RssiMessage[6] = HexToASCIICharUpper(s8RssiChannel0/100);
+      au8RssiMessage[7] = HexToASCIICharUpper(s8RssiChannel0%100/10);
+      au8RssiMessage[8] = HexToASCIICharUpper(s8RssiChannel0%100%10);
       /* Check if the new data is the same as the old data and update as we go */
       bGotNewData = FALSE;
       for(u8 i = 0; i < ANT_APPLICATION_MESSAGE_BYTES; i++)
@@ -357,6 +363,8 @@ static void UserApp1SM_ChannelOpen(void)
       {
         /* We got new data: show on LCD */
 #ifdef MPG1
+        LCDClearChars(LINE1_START_ADDR, 20);
+        LCDMessage(LINE1_START_ADDR, au8RssiMessage);
         LCDClearChars(LINE2_START_ADDR, 20); 
         LCDMessage(LINE2_START_ADDR, au8DataContent); 
 #endif /* MPG1 */    
@@ -419,7 +427,7 @@ static void UserApp1SM_ChannelOpen(void)
           {
             LedOn(GREEN3);
           }
-
+          
           if(G_au8AntApiCurrentMessageBytes[3] == 1)
           {
             LedOn(BLUE3);
@@ -432,7 +440,7 @@ static void UserApp1SM_ChannelOpen(void)
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
     {
       UserApp1_u32TickMsgCount++;
-
+      
       /* Look at the TICK contents to check the event code and respond only if it's different */
       if(u8LastState != G_au8AntApiCurrentMessageBytes[ANT_TICK_MSG_EVENT_CODE_INDEX])
       {
@@ -440,32 +448,38 @@ static void UserApp1SM_ChannelOpen(void)
         u8LastState = G_au8AntApiCurrentMessageBytes[ANT_TICK_MSG_EVENT_CODE_INDEX];
         au8TickMessage[6] = HexToASCIICharUpper(u8LastState);
         DebugPrintf(au8TickMessage);
-
+        
         /* Parse u8LastState to update LED status */
         switch (u8LastState)
         {
 #ifdef MPG1
           /* If we are synced with a device, blue is solid */
-          case RESPONSE_NO_ERROR:
+        case RESPONSE_NO_ERROR:
           {
             LedOff(GREEN);
             LedOn(BLUE);
             break;
           }
-
+          
           /* If we are paired but missing messages, blue blinks */
-          case EVENT_RX_FAIL:
+        case EVENT_RX_FAIL:
           {
             LedOff(GREEN);
             LedBlink(BLUE, LED_2HZ);
             break;
           }
-
+          
           /* If we drop to search, LED is green */
-          case EVENT_RX_FAIL_GO_TO_SEARCH:
+        case EVENT_RX_FAIL_GO_TO_SEARCH:
           {
             LedOff(BLUE);
             LedOn(GREEN);
+            break;
+          }
+        case 0xFD:
+          {
+            LedOff(GREEN);
+            LedOn(BLUE);
             break;
           }
 #endif /* MPG 1 */
