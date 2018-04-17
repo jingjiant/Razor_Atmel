@@ -67,7 +67,10 @@ State Machine Declarations
 ***********************************************************************************************************************/
 static void UserApp1SM_AntChannelAssign(void);
 static void UserApp1SM_Idle(void);    
-
+static void UserApp1SM_Hide(void);
+static void UserApp1SM_Seek(void);
+static void UserApp1SM_StartTime(void);
+static void UserApp1SM_AllLedOff(void);
 static void UserApp1SM_Error(void);         
 
 

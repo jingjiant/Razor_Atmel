@@ -64,7 +64,7 @@ Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_StateMachine;              /* The state machine function pointer */
 static u32 UserApp1_u32Timeout;                        /* Timeout counter used across states */
-
+static bool bMode = TRUE;
 static AntAssignChannelInfoType UserApp1_sChannelInfo; /* ANT setup parameters */
 
 static u8 UserApp1_au8MessageFail[] = "\n\r***ANT channel setup failed***\n\n\r";
@@ -95,14 +95,15 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
-  u8 au8WelcomeMessage[] = "ANT Master";
-
+  u8 au8WelcomeMessage1[] = "Hide and Go Seek!";
+  u8 au8WelcomeMessage2[] = "Press B0 to Start!";
   /* Write a weclome message on the LCD */
 #if EIE1
   /* Set a message up on the LCD. Delay is required to let the clear command send. */
   LCDCommand(LCD_CLEAR_CMD);
   for(u32 i = 0; i < 10000; i++);
-  LCDMessage(LINE1_START_ADDR, au8WelcomeMessage);
+  LCDMessage(LINE1_START_ADDR, au8WelcomeMessage1);
+   LCDMessage(LINE2_START_ADDR, au8WelcomeMessage2);
 #endif /* EIE1 */
   
 #if 0 // untested for MPG2
@@ -198,75 +199,266 @@ static void UserApp1SM_AntChannelAssign()
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  static u8 au8TestMessage[] = {0, 0, 0, 0, 0xA5, 0, 0, 0};
-  u8 au8DataContent[] = "xxxxxxxxxxxxxxxx";
-  
-  /* Check all the buttons and update au8TestMessage according to the button state */ 
-  au8TestMessage[0] = 0x00;
-  if( IsButtonPressed(BUTTON0) )
+  AntReadAppMessageBuffer();
+  if( WasButtonPressed(BUTTON0) )
   {
-    au8TestMessage[0] = 0xff;
+     ButtonAcknowledge(BUTTON0);
+     LCDCommand(LCD_CLEAR_CMD);
+     LCDMessage(LINE1_START_ADDR,"Hide!");
+     UserApp1_StateMachine = UserApp1SM_StartTime;
   }
   
-  au8TestMessage[1] = 0x00;
-  if( IsButtonPressed(BUTTON1) )
-  {
-    au8TestMessage[1] = 0xff;
-  }
-
-#ifdef EIE1
-  au8TestMessage[2] = 0x00;
-  if( IsButtonPressed(BUTTON2) )
-  {
-    au8TestMessage[2] = 0xff;
-  }
-
-  au8TestMessage[3] = 0x00;
-  if( IsButtonPressed(BUTTON3) )
-  {
-    au8TestMessage[3] = 0xff;
-  }
-#endif /* EIE1 */
   
-  if( AntReadAppMessageBuffer() )
-  {
-     /* New message from ANT task: check what it is */
-    if(G_eAntApiCurrentMessageClass == ANT_DATA)
-    {
-      /* We got some data: parse it into au8DataContent[] */
-      for(u8 i = 0; i < ANT_DATA_BYTES; i++)
-      {
-        au8DataContent[2 * i]     = HexToASCIICharUpper(G_au8AntApiCurrentMessageBytes[i] / 16);
-        au8DataContent[2 * i + 1] = HexToASCIICharUpper(G_au8AntApiCurrentMessageBytes[i] % 16);
-      }
-
-#ifdef EIE1
-      LCDMessage(LINE2_START_ADDR, au8DataContent);
-#endif /* EIE1 */
-      
-#ifdef MPG2
-#endif /* MPG2 */
-      
-    }
-    else if(G_eAntApiCurrentMessageClass == ANT_TICK)
-    {
-     /* Update and queue the new message data */
-      au8TestMessage[7]++;
-      if(au8TestMessage[7] == 0)
-      {
-        au8TestMessage[6]++;
-        if(au8TestMessage[6] == 0)
-        {
-          au8TestMessage[5]++;
-        }
-      }
-      AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
-    }
-  } /* end AntReadData() */
+  
+ 
+  
   
 } /* end UserApp1SM_Idle() */
 
+static void UserApp1SM_Hide(void)
+{
+  static u8 au8TrueMessage[]={1, 1, 1, 1, 1, 1, 1, 1,};
+  static u8 au8RssiMessage[]="RSSI:-xxx dbm";
+  static s8 s8RssiChannel0;
+  static u8 au8TestMessage[] = {1, 2, 3, 4, 0xFF, 0, 0, 0};
+  static u8 u8Counter=0;
+  
+  if( AntReadAppMessageBuffer() )
+  {
+    if(G_eAntApiCurrentMessageClass == ANT_DATA)
+    {
+      s8RssiChannel0 = G_sAntApiCurrentMessageExtData.s8RSSI;
+      s8RssiChannel0 = s8RssiChannel0/(-1);
+      au8RssiMessage[6] = HexToASCIICharUpper(s8RssiChannel0/100);
+      au8RssiMessage[7] = HexToASCIICharUpper(s8RssiChannel0%100/10);
+      au8RssiMessage[8] = HexToASCIICharUpper(s8RssiChannel0%100%10);
+      
+      for(u8 i = 0; i < ANT_DATA_BYTES; i++)
+      {
+        if(G_au8AntApiCurrentMessageBytes[i] == au8TrueMessage[i])
+        {
+          u8Counter++;
+        }
+      }
+      if(u8Counter==8)
+      {       
+        AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TrueMessage);
+        LCDClearChars(LINE1_START_ADDR, 20);
+        LCDMessage(LINE1_START_ADDR, "YOU FUND ME!");
+        bMode = FALSE;
+        UserApp1_StateMachine = UserApp1SM_StartTime;
+        
+      }
+      u8Counter=0;
+      LCDClearChars(LINE2_START_ADDR, 20);
+      LCDMessage(LINE2_START_ADDR, au8RssiMessage);
+    }
+    
+    else if(G_eAntApiCurrentMessageClass == ANT_TICK)
+    {
+      au8TestMessage[7]++;
+      AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
+    }
+  }
+}
 
+
+
+static void UserApp1SM_Seek(void)
+{
+  static u8 au8TestMessage[] = {0, 0, 0, 0, 0xFF, 1, 2, 3};
+  static u8 u8Counter=0;
+  static u8 au8TrueMessage[]={2, 2, 2, 2, 2, 2, 2, 2,};
+  static u8 au8RssiMessage[]="RSSI:-xxx dbm";
+  static s8 s8RssiChannel0;
+  static bool bBuzzer1State = TRUE;
+  
+  if( WasButtonPressed(BUTTON1) )
+  {
+    ButtonAcknowledge(BUTTON1);
+    if(bBuzzer1State)
+    {
+      bBuzzer1State = FALSE;
+      PWMAudioOn(BUZZER1);
+    }
+    else
+    {
+      bBuzzer1State = TRUE;
+      PWMAudioOff(BUZZER1);
+    }
+  }
+  
+  if( AntReadAppMessageBuffer() )
+  {
+    if(G_eAntApiCurrentMessageClass == ANT_DATA)
+    {
+      s8RssiChannel0 = G_sAntApiCurrentMessageExtData.s8RSSI;
+      s8RssiChannel0 = s8RssiChannel0/(-1);
+      au8RssiMessage[6] = HexToASCIICharUpper(s8RssiChannel0/100);
+      au8RssiMessage[7] = HexToASCIICharUpper(s8RssiChannel0%100/10);
+      au8RssiMessage[8] = HexToASCIICharUpper(s8RssiChannel0%100%10);    
+      LCDClearChars(LINE2_START_ADDR, 20);
+      LCDMessage(LINE2_START_ADDR, au8RssiMessage);
+      
+      if(s8RssiChannel0>=95)
+      {
+        UserApp1SM_AllLedOff();
+      }
+      if(s8RssiChannel0<95)
+      {
+        UserApp1SM_AllLedOff();
+        LedPWM(RED,LED_PWM_10);
+        PWMAudioSetFrequency(BUZZER1, 500);
+      }
+      if(s8RssiChannel0<85)
+      {
+        UserApp1SM_AllLedOff();
+        LedPWM(ORANGE,LED_PWM_20);
+        LedPWM(RED,LED_PWM_10);
+        PWMAudioSetFrequency(BUZZER1, 450);
+      }
+      if(s8RssiChannel0<75)
+      {
+        UserApp1SM_AllLedOff();
+        LedPWM(YELLOW,LED_PWM_30);
+        LedPWM(ORANGE,LED_PWM_20);
+        LedPWM(RED,LED_PWM_10);
+        PWMAudioSetFrequency(BUZZER1, 400);
+      }
+      if(s8RssiChannel0<70)
+      {
+        UserApp1SM_AllLedOff();
+        LedPWM(GREEN,LED_PWM_40);
+        LedPWM(YELLOW,LED_PWM_30);
+        LedPWM(ORANGE,LED_PWM_20);
+        LedPWM(RED,LED_PWM_10);
+        PWMAudioSetFrequency(BUZZER1, 350);
+      }
+      if(s8RssiChannel0<65)
+      {
+        UserApp1SM_AllLedOff();
+        LedPWM(CYAN,LED_PWM_50);
+        LedPWM(GREEN,LED_PWM_40);
+        LedPWM(YELLOW,LED_PWM_30);
+        LedPWM(ORANGE,LED_PWM_20);
+        LedPWM(RED,LED_PWM_10);
+        PWMAudioSetFrequency(BUZZER1, 300);
+      }
+      if(s8RssiChannel0<60)
+      {
+        UserApp1SM_AllLedOff();
+        LedPWM(BLUE,LED_PWM_60);
+        LedPWM(CYAN,LED_PWM_50);
+        LedPWM(GREEN,LED_PWM_40);
+        LedPWM(YELLOW,LED_PWM_30);
+        LedPWM(ORANGE,LED_PWM_20);
+        LedPWM(RED,LED_PWM_10);
+        PWMAudioSetFrequency(BUZZER1, 250);
+      }
+      if(s8RssiChannel0<55)
+      {
+        UserApp1SM_AllLedOff();
+        LedPWM(PURPLE,LED_PWM_70);
+        LedPWM(BLUE,LED_PWM_60);
+        LedPWM(CYAN,LED_PWM_50);
+        LedPWM(GREEN,LED_PWM_40);
+        LedPWM(YELLOW,LED_PWM_30);
+        LedPWM(ORANGE,LED_PWM_20);
+        LedPWM(RED,LED_PWM_10);
+        PWMAudioSetFrequency(BUZZER1, 200);
+      }
+      if(s8RssiChannel0<50)
+      {
+        UserApp1SM_AllLedOff();
+        LedPWM(WHITE,LED_PWM_80);
+        LedPWM(PURPLE,LED_PWM_70);
+        LedPWM(BLUE,LED_PWM_60);
+        LedPWM(CYAN,LED_PWM_50);
+        LedPWM(GREEN,LED_PWM_40);
+        LedPWM(YELLOW,LED_PWM_30);
+        LedPWM(ORANGE,LED_PWM_20);
+        LedPWM(RED,LED_PWM_10);
+        AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TrueMessage);
+        PWMAudioSetFrequency(BUZZER1, 150);
+      }
+      for(u8 i = 0; i < ANT_DATA_BYTES; i++)
+      {
+        if(G_au8AntApiCurrentMessageBytes[i] == au8TrueMessage[i])
+        {
+          u8Counter++;
+        }
+      }
+      if(u8Counter==8)
+      {   
+        UserApp1SM_AllLedOff();
+        LCDClearChars(LINE1_START_ADDR, 20);
+        LCDMessage(LINE1_START_ADDR, "I FUND YOU!");
+        bMode = TRUE;
+        UserApp1_StateMachine = UserApp1SM_StartTime;
+        PWMAudioOff(BUZZER1);
+      }
+      u8Counter=0;
+      
+      AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
+      
+    }
+    
+    else if(G_eAntApiCurrentMessageClass == ANT_TICK)
+    {
+      au8TestMessage[0]++;
+      AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
+    }
+    
+  }
+  
+  
+}
+
+
+static void UserApp1SM_StartTime(void)
+{
+  static u16 u16StartTime = 0;
+  u16StartTime++;
+  AntReadAppMessageBuffer();
+  if(bMode)
+  {
+  if(u16StartTime == 10000)
+  {
+    UserApp1_StateMachine = UserApp1SM_Hide;
+    u16StartTime = 0;
+    LCDCommand(LCD_CLEAR_CMD);
+    LCDMessage(LINE1_START_ADDR,"Hide!");
+  }
+  }
+  else
+  {
+    if(u16StartTime==2000)
+    {
+      LCDCommand(LCD_CLEAR_CMD);
+      LCDMessage(LINE1_START_ADDR, "Seek!");
+    }
+      if(u16StartTime == 12000)
+  {
+    LCDMessage(LINE1_START_ADDR, "Ready or not");
+    LCDMessage(LINE2_START_ADDR, "Here I come!");
+    UserApp1_StateMachine = UserApp1SM_Seek;
+    u16StartTime = 0;
+  }
+  }
+}
+
+
+static void UserApp1SM_AllLedOff(void)
+{
+  LedOff(WHITE);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);
+}
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error (for now, do nothing) */
 static void UserApp1SM_Error(void)          
