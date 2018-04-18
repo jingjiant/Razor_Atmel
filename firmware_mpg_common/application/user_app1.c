@@ -204,7 +204,7 @@ static void UserApp1SM_Idle(void)
   {
      ButtonAcknowledge(BUTTON0);
      LCDCommand(LCD_CLEAR_CMD);
-     LCDMessage(LINE1_START_ADDR,"Hide!");
+     LCDMessage(LINE1_START_ADDR,"ARE YOU READY?");
      UserApp1_StateMachine = UserApp1SM_StartTime;
   }
   
@@ -422,17 +422,33 @@ static void UserApp1SM_Seek(void)
 static void UserApp1SM_StartTime(void)
 {
   static u16 u16StartTime = 0;
+  static u8 u8TimeDisplay = 0;
+  static u8 au8TimeDisplay[]="Time left: x";
   u16StartTime++;
   AntReadAppMessageBuffer();
   if(bMode)
   {
-  if(u16StartTime == 10000)
-  {
-    UserApp1_StateMachine = UserApp1SM_Hide;
-    u16StartTime = 0;
-    LCDCommand(LCD_CLEAR_CMD);
-    LCDMessage(LINE1_START_ADDR,"Hide!");
-  }
+    if(u16StartTime==2000)
+    {
+      LCDCommand(LCD_CLEAR_CMD);
+      LCDMessage(LINE1_START_ADDR,"Hide!");
+      LCDMessage(LINE2_START_ADDR,"Time left:10");
+    }
+    if(u16StartTime == 12000)
+    {
+      UserApp1_StateMachine = UserApp1SM_Hide;
+      u16StartTime = 0;
+    }
+    if(u16StartTime>2000)
+    {
+      if(u8TimeDisplay!=((12000-u16StartTime)/1000))
+      {
+        u8TimeDisplay = (12000-u16StartTime)/1000;
+        au8TimeDisplay[11] = HexToASCIICharUpper(u8TimeDisplay);
+        LCDClearChars(LINE2_START_ADDR, 20);
+        LCDMessage(LINE2_START_ADDR,au8TimeDisplay);
+      }
+    }
   }
   else
   {
@@ -440,14 +456,25 @@ static void UserApp1SM_StartTime(void)
     {
       LCDCommand(LCD_CLEAR_CMD);
       LCDMessage(LINE1_START_ADDR, "Seek!");
+      
     }
-      if(u16StartTime == 12000)
-  {
-    LCDMessage(LINE1_START_ADDR, "Ready or not");
-    LCDMessage(LINE2_START_ADDR, "Here I come!");
-    UserApp1_StateMachine = UserApp1SM_Seek;
-    u16StartTime = 0;
-  }
+    if(u16StartTime == 12000)
+    {
+      LCDMessage(LINE1_START_ADDR, "Ready or not");
+      LCDMessage(LINE2_START_ADDR, "Here I come!");
+      UserApp1_StateMachine = UserApp1SM_Seek;
+      u16StartTime = 0;
+    }
+    if(u16StartTime>2000)
+    {
+      if(u8TimeDisplay!=((12000-u16StartTime)/1000))
+      {
+        u8TimeDisplay = (12000-u16StartTime)/1000;
+        au8TimeDisplay[11] = HexToASCIICharUpper(u8TimeDisplay);
+        LCDClearChars(LINE2_START_ADDR, 20);
+        LCDMessage(LINE2_START_ADDR,au8TimeDisplay);
+      }
+    }
   }
 }
 
