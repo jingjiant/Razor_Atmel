@@ -307,79 +307,79 @@ static void UserApp1SM_Seek(void)
       if(s8RssiChannel0<95)
       {
         UserApp1SM_AllLedOff();
-        LedPWM(RED,LED_PWM_10);
-        PWMAudioSetFrequency(BUZZER1, 500);
+       LedPWM(RED,LED_PWM_5);
+        PWMAudioSetFrequency(BUZZER1, 150);
       }
       if(s8RssiChannel0<85)
       {
         UserApp1SM_AllLedOff();
-        LedPWM(ORANGE,LED_PWM_20);
-        LedPWM(RED,LED_PWM_10);
-        PWMAudioSetFrequency(BUZZER1, 450);
+        LedPWM(ORANGE,LED_PWM_10);
+        LedPWM(RED,LED_PWM_5);
+        PWMAudioSetFrequency(BUZZER1, 200);
       }
       if(s8RssiChannel0<75)
       {
         UserApp1SM_AllLedOff();
-        LedPWM(YELLOW,LED_PWM_30);
-        LedPWM(ORANGE,LED_PWM_20);
-        LedPWM(RED,LED_PWM_10);
-        PWMAudioSetFrequency(BUZZER1, 400);
+        LedPWM(YELLOW,LED_PWM_15);
+        LedPWM(ORANGE,LED_PWM_10);
+        LedPWM(RED,LED_PWM_5);
+        PWMAudioSetFrequency(BUZZER1, 250);
       }
       if(s8RssiChannel0<70)
       {
         UserApp1SM_AllLedOff();
-        LedPWM(GREEN,LED_PWM_40);
-        LedPWM(YELLOW,LED_PWM_30);
-        LedPWM(ORANGE,LED_PWM_20);
-        LedPWM(RED,LED_PWM_10);
-        PWMAudioSetFrequency(BUZZER1, 350);
+        LedPWM(GREEN,LED_PWM_20);
+        LedPWM(YELLOW,LED_PWM_15);
+        LedPWM(ORANGE,LED_PWM_10);
+        LedPWM(RED,LED_PWM_5);
+        PWMAudioSetFrequency(BUZZER1, 300);
       }
       if(s8RssiChannel0<65)
       {
         UserApp1SM_AllLedOff();
-        LedPWM(CYAN,LED_PWM_50);
-        LedPWM(GREEN,LED_PWM_40);
-        LedPWM(YELLOW,LED_PWM_30);
-        LedPWM(ORANGE,LED_PWM_20);
-        LedPWM(RED,LED_PWM_10);
-        PWMAudioSetFrequency(BUZZER1, 300);
+        LedPWM(CYAN,LED_PWM_25);
+        LedPWM(GREEN,LED_PWM_20);
+        LedPWM(YELLOW,LED_PWM_15);
+        LedPWM(ORANGE,LED_PWM_10);
+        LedPWM(RED,LED_PWM_5);
+        PWMAudioSetFrequency(BUZZER1, 350);
       }
       if(s8RssiChannel0<60)
       {
         UserApp1SM_AllLedOff();
-        LedPWM(BLUE,LED_PWM_60);
-        LedPWM(CYAN,LED_PWM_50);
-        LedPWM(GREEN,LED_PWM_40);
-        LedPWM(YELLOW,LED_PWM_30);
-        LedPWM(ORANGE,LED_PWM_20);
-        LedPWM(RED,LED_PWM_10);
-        PWMAudioSetFrequency(BUZZER1, 250);
+        LedPWM(BLUE,LED_PWM_30);
+        LedPWM(CYAN,LED_PWM_25);
+        LedPWM(GREEN,LED_PWM_20);
+        LedPWM(YELLOW,LED_PWM_15);
+        LedPWM(ORANGE,LED_PWM_10);
+        LedPWM(RED,LED_PWM_5);
+        PWMAudioSetFrequency(BUZZER1, 400);
       }
       if(s8RssiChannel0<55)
       {
         UserApp1SM_AllLedOff();
-        LedPWM(PURPLE,LED_PWM_70);
-        LedPWM(BLUE,LED_PWM_60);
-        LedPWM(CYAN,LED_PWM_50);
-        LedPWM(GREEN,LED_PWM_40);
-        LedPWM(YELLOW,LED_PWM_30);
-        LedPWM(ORANGE,LED_PWM_20);
-        LedPWM(RED,LED_PWM_10);
-        PWMAudioSetFrequency(BUZZER1, 200);
+        LedPWM(PURPLE,LED_PWM_35);
+        LedPWM(BLUE,LED_PWM_30);
+        LedPWM(CYAN,LED_PWM_25);
+        LedPWM(GREEN,LED_PWM_20);
+        LedPWM(YELLOW,LED_PWM_15);
+        LedPWM(ORANGE,LED_PWM_10);
+        LedPWM(RED,LED_PWM_5);
+        PWMAudioSetFrequency(BUZZER1, 450);
       }
       if(s8RssiChannel0<50)
       {
         UserApp1SM_AllLedOff();
-        LedPWM(WHITE,LED_PWM_80);
-        LedPWM(PURPLE,LED_PWM_70);
-        LedPWM(BLUE,LED_PWM_60);
-        LedPWM(CYAN,LED_PWM_50);
-        LedPWM(GREEN,LED_PWM_40);
-        LedPWM(YELLOW,LED_PWM_30);
-        LedPWM(ORANGE,LED_PWM_20);
-        LedPWM(RED,LED_PWM_10);
+        LedPWM(WHITE,LED_PWM_40);
+        LedPWM(PURPLE,LED_PWM_35);
+        LedPWM(BLUE,LED_PWM_30);
+        LedPWM(CYAN,LED_PWM_25);
+        LedPWM(GREEN,LED_PWM_20);
+        LedPWM(YELLOW,LED_PWM_15);
+        LedPWM(ORANGE,LED_PWM_10);
+        LedPWM(RED,LED_PWM_5);
         AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TrueMessage);
-        PWMAudioSetFrequency(BUZZER1, 150);
+        PWMAudioSetFrequency(BUZZER1, 500);
       }
       for(u8 i = 0; i < ANT_DATA_BYTES; i++)
       {
@@ -405,8 +405,12 @@ static void UserApp1SM_Seek(void)
     
     else if(G_eAntApiCurrentMessageClass == ANT_TICK)
     {
+      if(G_au8AntApiCurrentMessageBytes[ANT_TICK_MSG_EVENT_CODE_INDEX]==0x06)
+      {
+        UserApp1SM_AllLedOff();
+      }
       au8TestMessage[0]++;
-      AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
+      AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
     }
     
   }
