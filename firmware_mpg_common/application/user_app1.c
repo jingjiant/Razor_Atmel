@@ -217,7 +217,7 @@ static void UserApp1SM_Idle(void)
 
 static void UserApp1SM_Hide(void)
 {
-  static u8 au8TrueMessage[]={1, 1, 1, 1, 1, 1, 1, 1,};
+  static u8 au8TrueMessage[]={1, 1, 1, 1, 1, 1, 1, 1};
   static u8 au8RssiMessage[]="RSSI:-xxx dbm";
   static s8 s8RssiChannel0;
   static u8 au8TestMessage[] = {1, 2, 3, 4, 0xFF, 0, 0, 0};
@@ -242,7 +242,7 @@ static void UserApp1SM_Hide(void)
       }
       if(u8Counter==8)
       {       
-        AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TrueMessage);
+        AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TrueMessage);
         LCDClearChars(LINE1_START_ADDR, 20);
         LCDMessage(LINE1_START_ADDR, "YOU FUND ME!");
         bMode = FALSE;
@@ -268,7 +268,7 @@ static void UserApp1SM_Seek(void)
 {
   static u8 au8TestMessage[] = {0, 0, 0, 0, 0xFF, 1, 2, 3};
   static u8 u8Counter=0;
-  static u8 au8TrueMessage[]={2, 2, 2, 2, 2, 2, 2, 2,};
+  static u8 au8TrueMessage[]={2, 2, 2, 2, 2, 2, 2, 2};
   static u8 au8RssiMessage[]="RSSI:-xxx dbm";
   static s8 s8RssiChannel0;
   static bool bBuzzer1State = TRUE;
@@ -300,24 +300,24 @@ static void UserApp1SM_Seek(void)
       LCDClearChars(LINE2_START_ADDR, 20);
       LCDMessage(LINE2_START_ADDR, au8RssiMessage);
       
-      if(s8RssiChannel0>=95)
+      if(s8RssiChannel0>95)
       {
         UserApp1SM_AllLedOff();
       }
-      if(s8RssiChannel0<95)
+      if(85<s8RssiChannel0&&s8RssiChannel0<=95)
       {
         UserApp1SM_AllLedOff();
        LedPWM(RED,LED_PWM_5);
         PWMAudioSetFrequency(BUZZER1, 150);
       }
-      if(s8RssiChannel0<85)
+      if(75<s8RssiChannel0&&s8RssiChannel0<=85)
       {
         UserApp1SM_AllLedOff();
         LedPWM(ORANGE,LED_PWM_10);
         LedPWM(RED,LED_PWM_5);
         PWMAudioSetFrequency(BUZZER1, 200);
       }
-      if(s8RssiChannel0<75)
+      if(70<s8RssiChannel0&&s8RssiChannel0<=75)
       {
         UserApp1SM_AllLedOff();
         LedPWM(YELLOW,LED_PWM_15);
@@ -325,7 +325,7 @@ static void UserApp1SM_Seek(void)
         LedPWM(RED,LED_PWM_5);
         PWMAudioSetFrequency(BUZZER1, 250);
       }
-      if(s8RssiChannel0<70)
+      if(65<s8RssiChannel0&&s8RssiChannel0<=70)
       {
         UserApp1SM_AllLedOff();
         LedPWM(GREEN,LED_PWM_20);
@@ -334,7 +334,7 @@ static void UserApp1SM_Seek(void)
         LedPWM(RED,LED_PWM_5);
         PWMAudioSetFrequency(BUZZER1, 300);
       }
-      if(s8RssiChannel0<65)
+      if(60<s8RssiChannel0&&s8RssiChannel0<=65)
       {
         UserApp1SM_AllLedOff();
         LedPWM(CYAN,LED_PWM_25);
@@ -344,7 +344,7 @@ static void UserApp1SM_Seek(void)
         LedPWM(RED,LED_PWM_5);
         PWMAudioSetFrequency(BUZZER1, 350);
       }
-      if(s8RssiChannel0<60)
+      if(55<s8RssiChannel0&&s8RssiChannel0<=60)
       {
         UserApp1SM_AllLedOff();
         LedPWM(BLUE,LED_PWM_30);
@@ -355,7 +355,7 @@ static void UserApp1SM_Seek(void)
         LedPWM(RED,LED_PWM_5);
         PWMAudioSetFrequency(BUZZER1, 400);
       }
-      if(s8RssiChannel0<55)
+      if(50<s8RssiChannel0&&s8RssiChannel0<=55)
       {
         UserApp1SM_AllLedOff();
         LedPWM(PURPLE,LED_PWM_35);
@@ -367,7 +367,7 @@ static void UserApp1SM_Seek(void)
         LedPWM(RED,LED_PWM_5);
         PWMAudioSetFrequency(BUZZER1, 450);
       }
-      if(s8RssiChannel0<50)
+      if(s8RssiChannel0<=50)
       {
         UserApp1SM_AllLedOff();
         LedPWM(WHITE,LED_PWM_40);
@@ -378,7 +378,7 @@ static void UserApp1SM_Seek(void)
         LedPWM(YELLOW,LED_PWM_15);
         LedPWM(ORANGE,LED_PWM_10);
         LedPWM(RED,LED_PWM_5);
-        AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TrueMessage);
+        AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TrueMessage);
         PWMAudioSetFrequency(BUZZER1, 500);
       }
       for(u8 i = 0; i < ANT_DATA_BYTES; i++)
@@ -396,10 +396,11 @@ static void UserApp1SM_Seek(void)
         bMode = TRUE;
         UserApp1_StateMachine = UserApp1SM_StartTime;
         PWMAudioOff(BUZZER1);
+        
       }
       u8Counter=0;
+
       
-      AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
       
     }
     
@@ -410,7 +411,7 @@ static void UserApp1SM_Seek(void)
         UserApp1SM_AllLedOff();
       }
       au8TestMessage[0]++;
-      AntQueueAcknowledgedMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
+      AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
     }
     
   }
