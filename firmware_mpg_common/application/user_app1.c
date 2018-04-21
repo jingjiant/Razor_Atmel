@@ -410,7 +410,7 @@ static void UserApp1SM_Seek(void)
       {
         UserApp1SM_AllLedOff();
       }
-      au8TestMessage[0]++;
+      au8TestMessage[7]++;
       AntQueueBroadcastMessage(ANT_CHANNEL_USERAPP, au8TestMessage);
     }
     
@@ -457,6 +457,8 @@ static void UserApp1SM_StartTime(void)
     {
       LCDCommand(LCD_CLEAR_CMD);
       LCDMessage(LINE1_START_ADDR, "Seek!");
+      UserApp1_sChannelInfo.AntChannel          = CHANNEL_TYPE_SLAVE;
+
       
     }
     if(u16StartTime == 12000)
