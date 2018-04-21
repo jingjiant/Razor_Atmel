@@ -72,7 +72,11 @@ static void UserApp1SM_Seek(void);
 static void UserApp1SM_StartTime(void);
 static void UserApp1SM_AllLedOff(void);
 static void UserApp1SM_Error(void);         
-
+static void UserApp1SM_AntCloseChannel(void);
+static void UserApp1SM_AntUnassignChannel(void);
+static void UserApp1SM_AntAssignChannel(void);
+static void UserApp1SM_AntOpenChannel(void);
+static void UserApp1SM_AntClosingChannel(void);
 
 #endif /* __USER_APP1_H */
 
