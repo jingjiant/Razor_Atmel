@@ -76,7 +76,9 @@ static void UserApp1SM_AntCloseChannel(void);
 static void UserApp1SM_AntUnassignChannel(void);
 static void UserApp1SM_AntAssignChannel(void);
 static void UserApp1SM_AntOpenChannel(void);
-static void UserApp1SM_AntClosingChannel(void);
+
+
+
 
 #endif /* __USER_APP1_H */
 
