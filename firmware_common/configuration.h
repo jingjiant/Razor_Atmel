@@ -221,7 +221,7 @@ Open the LED source.c and edit Led_au32BitPositions and Leds_asLedArray with the
 */
 
 #ifdef EIE1
-#define TOTAL_LEDS            (u8)11        /* Total number of LEDs in the system */
+#define TOTAL_LEDS            (u8)13        /* Total number of LEDs in the system */
 #endif /* EIE1 */
 
 
@@ -245,15 +245,16 @@ The order of the definitions below must match the order of the definitions provi
 */
 
 #ifdef EIE1
-#define TOTAL_BUTTONS         (u8)4       /* Total number of Buttons in the system */
+#define TOTAL_BUTTONS         (u8)5       /* Total number of Buttons in the system */
 
 #define BUTTON0               (u32)0
 #define BUTTON1               (u32)1
 #define BUTTON2               (u32)2
 #define BUTTON3               (u32)3
+#define BUTTON               (u32)4
 
 /* All buttons on each port must be ORed together here: set to 0 if no buttons on the port */
-#define GPIOA_BUTTONS         (u32)( PA_17_BUTTON0 )
+#define GPIOA_BUTTONS         (u32)( PA_17_BUTTON0 | PA_11_BUTTON)
 #define GPIOB_BUTTONS         (u32)( PB_00_BUTTON1 | PB_01_BUTTON2 | PB_02_BUTTON3 )
 #endif /* EIE1 */
 
