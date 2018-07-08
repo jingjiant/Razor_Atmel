@@ -1960,6 +1960,9 @@
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\buttons.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\CD4053.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\exceptions.h</name>
       </file>
       <file>
@@ -1992,6 +1995,9 @@
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\utilities.h</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\X9C103.h</name>
+      </file>
     </group>
     <group>
       <name>Source</name>
@@ -2006,6 +2012,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\buttons.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\CD4053.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\exceptions.c</name>
@@ -2039,6 +2048,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\utilities.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\X9C103.c</name>
       </file>
     </group>
   </group>

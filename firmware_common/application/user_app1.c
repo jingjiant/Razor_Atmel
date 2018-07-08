@@ -87,7 +87,9 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  CD4053Initialize();
+  X9C103Initialize();
+  AT91C_BASE_PIOA->PIO_SODR   = 0X00000200;
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +138,78 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  static u8 u8State = 0;
+  static u8 a,b;
+  if(WasButtonPressed(BUTTON0))
+  {
+    ButtonAcknowledge(BUTTON0);
+    IncreaseSound();
+    LedOn(RED);
+    for(a=0;a<100;a++)
+    {
+      for(b=0;b<100;b++)
+      {
+        
+      }
+    }
+    LedOff(RED);
+  }
+  if(WasButtonPressed(BUTTON1))
+  {
+    ButtonAcknowledge(BUTTON1);
+    DecreaseSound();
+    LedOn(RED);
+    for(a=0;a<100;a++)
+    {
+      for(b=0;b<100;b++)
+      {
+        
+      }
+    }
+    LedOff(RED);
+  }
+  if(WasButtonPressed(BUTTON3))
+  {
+    ButtonAcknowledge(BUTTON3);
+    LedOn(RED);
+    for(a=0;a<100;a++)
+    {
+      for(b=0;b<100;b++)
+      {
+        
+      }
+    }
+    LedOff(RED);
+    if(u8State == 0)
+    {
+      SelectState(OutPutAUD1);
+      u8State = 1;
+      LedOn(BLUE);
+      LedOff(GREEN);
+      LedOff(PURPLE);
+    }
+    else  if(u8State == 1)
+    {
+      SelectState(OutPutAUD2);
+      u8State = 2;
+      LedOn(GREEN);
+      LedOff(BLUE);
+      LedOff(PURPLE);
+    }
+    else  if(u8State == 2)
+    {
+      SelectState(OutPutGND);
+      u8State = 0;
+      LedOn(PURPLE);
+      LedOff(GREEN);
+      LedOff(BLUE);
+    }
+  }
+  if(WasButtonPressed(BUTTON2))
+  {
+     ButtonAcknowledge(BUTTON2);
+     
+  }
 } /* end UserApp1SM_Idle() */
     
 
