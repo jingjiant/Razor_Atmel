@@ -273,8 +273,10 @@ Requires:
 Promises:
   - 
 */
+ bool bConvertCom =FALSE;
 void Adc12DefaultCallback(u16 u16Result_)
 {
+  bConvertCom =TRUE;
 } /* End Adc12DefaultCallback() */
 
 
@@ -329,9 +331,10 @@ State Machine Function Definitions
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for a message to be queued */
+
 static void Adc12SM_Idle(void)
 {
-    
+   
 } /* end Adc12SM_Idle() */
      
 

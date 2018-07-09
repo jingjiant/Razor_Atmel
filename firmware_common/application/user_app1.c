@@ -51,7 +51,7 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
-
+extern bool bConvertCom;
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
@@ -80,16 +80,20 @@ Description:
 Initializes the State Machine and its variables.
 
 Requires:
-  -
+-
 
 Promises:
-  - 
+- 
 */
 void UserApp1Initialize(void)
 {
   CD4053Initialize();
   X9C103Initialize();
   AT91C_BASE_PIOA->PIO_SODR   = 0X00000200;
+  Adc12AssignCallback(ADC12_CH2,Adc12DefaultCallback);
+  LCDClearChars(LINE1_START_ADDR , 20);
+  LCDClearChars(LINE2_START_ADDR , 20);
+  LCDMessage(LINE1_START_ADDR, "Press Button3");
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -100,10 +104,10 @@ void UserApp1Initialize(void)
     /* The task isn't properly initialized, so shut it down and don't run */
     UserApp1_StateMachine = UserApp1SM_Error;
   }
-
+  
 } /* end UserApp1Initialize() */
 
-  
+
 /*----------------------------------------------------------------------------------------------------------------------
 Function UserApp1RunActiveState()
 
@@ -113,15 +117,15 @@ All state machines have a TOTAL of 1ms to execute, so on average n state machine
 may take 1ms / n to execute.
 
 Requires:
-  - State machine function pointer points at current state
+- State machine function pointer points at current state
 
 Promises:
-  - Calls the function to pointed by the state machine function pointer
+- Calls the function to pointed by the state machine function pointer
 */
 void UserApp1RunActiveState(void)
 {
   UserApp1_StateMachine();
-
+  
 } /* end UserApp1RunActiveState */
 
 
@@ -136,10 +140,21 @@ State Machine Function Definitions
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Wait for ??? */
+
 static void UserApp1SM_Idle(void)
 {
   static u8 u8State = 0;
+  static u8 u8Measer = 1;
+  static u8 u8Counter = 0;
   static u8 a,b;
+  static u16 u16ConvertResult;
+  static u8 u8Level = 0;
+  static u8 au8DisplayLevel[]="Current Level 0";
+  static u8 au8DisplayAccess1[]="AUD1";
+  static u8 au8DisplayAccess2[]="AUD2";
+  static u8 u8Location = 0;
+  static u8 au8Location[]="location xx%";
+  
   if(WasButtonPressed(BUTTON0))
   {
     ButtonAcknowledge(BUTTON0);
@@ -153,6 +168,14 @@ static void UserApp1SM_Idle(void)
       }
     }
     LedOff(RED);
+    u8Level++;
+    if(u8Level>9)
+    {
+      u8Level=9;
+    }
+    au8DisplayLevel[14]=HexToASCIICharLower(u8Level);
+    LCDClearChars(LINE1_START_ADDR , 20);
+    LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
   }
   if(WasButtonPressed(BUTTON1))
   {
@@ -167,9 +190,21 @@ static void UserApp1SM_Idle(void)
       }
     }
     LedOff(RED);
+    u8Level--;
+    if(u8Level==0xFF)
+    {
+      u8Level=0;
+    }
+    au8DisplayLevel[14]=HexToASCIICharLower(u8Level);
+    LCDClearChars(LINE1_START_ADDR , 20);
+    LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
   }
+  
+  
   if(WasButtonPressed(BUTTON3))
   {
+    LCDClearChars(LINE1_START_ADDR , 20);
+    LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
     ButtonAcknowledge(BUTTON3);
     LedOn(RED);
     for(a=0;a<100;a++)
@@ -187,6 +222,8 @@ static void UserApp1SM_Idle(void)
       LedOn(BLUE);
       LedOff(GREEN);
       LedOff(PURPLE);
+      LCDClearChars(LINE2_START_ADDR , 20);
+      LCDMessage(LINE2_START_ADDR, au8DisplayAccess1);
     }
     else  if(u8State == 1)
     {
@@ -195,6 +232,8 @@ static void UserApp1SM_Idle(void)
       LedOn(GREEN);
       LedOff(BLUE);
       LedOff(PURPLE);
+      LCDClearChars(LINE2_START_ADDR , 20);
+      LCDMessage(LINE2_START_ADDR, au8DisplayAccess2);
     }
     else  if(u8State == 2)
     {
@@ -203,15 +242,55 @@ static void UserApp1SM_Idle(void)
       LedOn(PURPLE);
       LedOff(GREEN);
       LedOff(BLUE);
+      LCDClearChars(LINE2_START_ADDR , 20);
+      LCDMessage(LINE2_START_ADDR, "no sound");
     }
   }
   if(WasButtonPressed(BUTTON2))
   {
-     ButtonAcknowledge(BUTTON2);
-     
+    ButtonAcknowledge(BUTTON2);
+    if(u8Measer == 0)
+    {
+      u8Measer = 1;
+      AT91C_BASE_PIOB->PIO_CODR   = 0X00000010;
+      LedOff(WHITE);
+      LCDCommand(LCD_CLEAR_CMD);
+      LCDMessage(LINE1_START_ADDR, "select access");
+    }
+    else if(u8Measer == 1)
+    {
+      SelectState(OutPutHigh);
+      u8Measer=2;
+      AT91C_BASE_PIOB->PIO_SODR   = 0X00000010;
+      LedOn(WHITE);
+    }
+    
+    
+  }
+  
+  if(u8Measer == 2)
+  {
+    u8Counter++;
+    if(u8Counter==100)
+    {
+      u8Counter=0;
+      Adc12StartConversion(ADC12_CH2);
+    }
+    if(bConvertCom)
+    {
+      bConvertCom = FALSE;
+      u16ConvertResult=AT91C_BASE_ADC12B->ADC12B_CDR[ADC12_CH2];
+    
+    u8Location=u16ConvertResult*100/0XFFF;
+    au8Location[9]=HexToASCIICharLower(u8Location/10);
+    au8Location[10]=HexToASCIICharLower(u8Location%10);
+    LCDCommand(LCD_CLEAR_CMD);
+    LCDMessage(LINE1_START_ADDR, au8Location);
+    u8Measer=0;
+    }
   }
 } /* end UserApp1SM_Idle() */
-    
+
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
