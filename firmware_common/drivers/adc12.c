@@ -85,6 +85,8 @@ static fnCode_u16_type Adc12_afCallbacks[8];          /* ADC12 ISR callback func
 
 static bool Adc12_bAdcAvailable;                      /* Binary semaphore to control access to the ADC12 peripheral */
 
+volatile bool bConvertCom =FALSE;
+volatile u16 u16ConvertResult=0;
 
 /**********************************************************************************************************************
 Function Definitions
@@ -273,9 +275,9 @@ Requires:
 Promises:
   - 
 */
- bool bConvertCom =FALSE;
 void Adc12DefaultCallback(u16 u16Result_)
 {
+  u16ConvertResult = u16Result_;
   bConvertCom =TRUE;
 } /* End Adc12DefaultCallback() */
 

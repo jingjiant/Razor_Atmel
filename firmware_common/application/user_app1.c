@@ -51,7 +51,8 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
-extern bool bConvertCom;
+extern volatile bool bConvertCom;
+extern volatile u16 u16ConvertResult;
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
@@ -87,12 +88,10 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
-  CD4053Initialize();
-  X9C103Initialize();
-  AT91C_BASE_PIOA->PIO_SODR   = 0X00000200;
+  CD4053Initialize();                                //3-2通道数字控制模拟开关初始化
+  X9C103Initialize();                                //数字电位器初始化
   Adc12AssignCallback(ADC12_CH2,Adc12DefaultCallback);
-  LCDClearChars(LINE1_START_ADDR , 20);
-  LCDClearChars(LINE2_START_ADDR , 20);
+  LCDCommand(LCD_CLEAR_CMD);
   LCDMessage(LINE1_START_ADDR, "Press Button3");
   /* If good initialization, set state to Idle */
   if( 1 )
@@ -145,9 +144,7 @@ static void UserApp1SM_Idle(void)
 {
   static u8 u8State = 0;
   static u8 u8Measer = 1;
-  static u8 u8Counter = 0;
-  static u8 a,b;
-  static u16 u16ConvertResult;
+  static u8 u8Count =0;
   static u8 u8Level = 0;
   static u8 au8DisplayLevel[]="Current Level 0";
   static u8 au8DisplayAccess1[]="AUD1";
@@ -155,67 +152,48 @@ static void UserApp1SM_Idle(void)
   static u8 u8Location = 0;
   static u8 au8Location[]="location xx%";
   
-  if(WasButtonPressed(BUTTON0))
+  if(WasButtonPressed(BUTTON0))                 //增加音量
   {
     ButtonAcknowledge(BUTTON0);
     IncreaseSound();
-    LedOn(RED);
-    for(a=0;a<100;a++)
-    {
-      for(b=0;b<100;b++)
-      {
-        
-      }
-    }
-    LedOff(RED);
+    RedBlink();
     u8Level++;
+    
     if(u8Level>9)
     {
       u8Level=9;
     }
+    
     au8DisplayLevel[14]=HexToASCIICharLower(u8Level);
     LCDClearChars(LINE1_START_ADDR , 20);
     LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
   }
-  if(WasButtonPressed(BUTTON1))
+  
+  if(WasButtonPressed(BUTTON1))                      //减小音量
   {
     ButtonAcknowledge(BUTTON1);
     DecreaseSound();
-    LedOn(RED);
-    for(a=0;a<100;a++)
-    {
-      for(b=0;b<100;b++)
-      {
-        
-      }
-    }
-    LedOff(RED);
+    RedBlink();
     u8Level--;
+    
     if(u8Level==0xFF)
     {
       u8Level=0;
     }
+    
     au8DisplayLevel[14]=HexToASCIICharLower(u8Level);
     LCDClearChars(LINE1_START_ADDR , 20);
     LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
   }
   
-  
-  if(WasButtonPressed(BUTTON3))
+  if(WasButtonPressed(BUTTON3))                 //选择模式：音频，MIC或静音
   {
     LCDClearChars(LINE1_START_ADDR , 20);
     LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
     ButtonAcknowledge(BUTTON3);
-    LedOn(RED);
-    for(a=0;a<100;a++)
-    {
-      for(b=0;b<100;b++)
-      {
-        
-      }
-    }
-    LedOff(RED);
-    if(u8State == 0)
+    RedBlink();
+    
+    if(u8State == 0)                            //MIC模式
     {
       SelectState(OutPutAUD1);
       u8State = 1;
@@ -225,7 +203,7 @@ static void UserApp1SM_Idle(void)
       LCDClearChars(LINE2_START_ADDR , 20);
       LCDMessage(LINE2_START_ADDR, au8DisplayAccess1);
     }
-    else  if(u8State == 1)
+    else  if(u8State == 1)                      //音频模式
     {
       SelectState(OutPutAUD2);
       u8State = 2;
@@ -235,7 +213,7 @@ static void UserApp1SM_Idle(void)
       LCDClearChars(LINE2_START_ADDR , 20);
       LCDMessage(LINE2_START_ADDR, au8DisplayAccess2);
     }
-    else  if(u8State == 2)
+    else  if(u8State == 2)                      //静音模式
     {
       SelectState(OutPutGND);
       u8State = 0;
@@ -246,52 +224,82 @@ static void UserApp1SM_Idle(void)
       LCDMessage(LINE2_START_ADDR, "no sound");
     }
   }
-  if(WasButtonPressed(BUTTON2))
+  
+  if(WasButtonPressed(BUTTON2))                 //测抽头位置
   {
     ButtonAcknowledge(BUTTON2);
-    if(u8Measer == 0)
+    RedBlink();
+    
+    if(u8Measer == 0)                           //将信号功放后输出
     {
       u8Measer = 1;
       AT91C_BASE_PIOB->PIO_CODR   = 0X00000010;
       LedOff(WHITE);
-      LCDCommand(LCD_CLEAR_CMD);
-      LCDMessage(LINE1_START_ADDR, "select access");
+      switch(u8State)                           //返回测抽头前的状态
+      {
+        case 0:
+          SelectState(OutPutGND);
+          LCDCommand(LCD_CLEAR_CMD);
+          LCDMessage(LINE2_START_ADDR, "no sound");
+          LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
+          break;
+        case 1:
+          SelectState(OutPutAUD1);
+          LCDCommand(LCD_CLEAR_CMD);
+          LCDMessage(LINE2_START_ADDR, au8DisplayAccess1);
+          LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
+          break;
+        case 2:
+          SelectState(OutPutAUD2);
+          LCDCommand(LCD_CLEAR_CMD);
+          LCDMessage(LINE2_START_ADDR, au8DisplayAccess2);
+          LCDMessage(LINE1_START_ADDR, au8DisplayLevel);
+          break;
+      }
     }
-    else if(u8Measer == 1)
+    else                                        //模拟开关输出3.3V
     {
       SelectState(OutPutHigh);
       u8Measer=2;
       AT91C_BASE_PIOB->PIO_SODR   = 0X00000010;
       LedOn(WHITE);
-    }
-    
-    
+    }  
   }
   
-  if(u8Measer == 2)
-  {
-    u8Counter++;
-    if(u8Counter==100)
+  if(u8Measer == 2)                             //测抽头位置
+  { 
+    u8Count++;
+    
+    if(u8Count==100)
     {
-      u8Counter=0;
+      u8Count = 0;
       Adc12StartConversion(ADC12_CH2);
     }
+    
     if(bConvertCom)
     {
       bConvertCom = FALSE;
-      u16ConvertResult=AT91C_BASE_ADC12B->ADC12B_CDR[ADC12_CH2];
-    
-    u8Location=u16ConvertResult*100/0XFFF;
-    au8Location[9]=HexToASCIICharLower(u8Location/10);
-    au8Location[10]=HexToASCIICharLower(u8Location%10);
-    LCDCommand(LCD_CLEAR_CMD);
-    LCDMessage(LINE1_START_ADDR, au8Location);
-    u8Measer=0;
+      u8Location=u16ConvertResult*100/0XFFF;
+      au8Location[9]=HexToASCIICharLower(u8Location/10);
+      au8Location[10]=HexToASCIICharLower(u8Location%10);
+      LCDCommand(LCD_CLEAR_CMD);
+      LCDMessage(LINE1_START_ADDR, au8Location);
+      u8Measer=0;
     }
   }
 } /* end UserApp1SM_Idle() */
 
 
+static void RedBlink(void)
+{
+  static u16 a,b;
+  LedOn(RED);
+  for(a=0;a<500;a++)
+  {
+    for(b=0;b<500;b++);
+  }
+  LedOff(RED);
+}
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
 static void UserApp1SM_Error(void)          
