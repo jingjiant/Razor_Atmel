@@ -148,7 +148,39 @@ static void UserApp1SM_Error(void)
 } /* end UserApp1SM_Error() */
 
 
+static void SendData(u8 u8Data)
+{
+  static u8 u8DataSize = 0;
+  
+  AT91C_BASE_PIOA->PIO_CODR   = M_CLK;
+  Delay(100);
+  
+  for(u8DataSize=0;u8DataSize<8;u8DataSize++)
+  {
+    if((u8Data&0X80)==0X80)
+    {
+      AT91C_BASE_PIOA->PIO_SODR   = M_SDI;
+    }
+    
+    else
+    {
+      AT91C_BASE_PIOA->PIO_CODR   = M_SDI;
+    }
+    Delay(100);
+    AT91C_BASE_PIOA->PIO_SODR   = M_CLK;
+    Delay(100);
+    AT91C_BASE_PIOA->PIO_CODR   = M_CLK;
+    u8Data = u8Data<<1;
+  } 
+    AT91C_BASE_PIOA->PIO_SODR   = 0X00001000;
+  AT91C_BASE_PIOA->PIO_CODR   = 0X00000800;
+}
 
+static void Delay(u16 u16i)
+{
+  static u16 u16a;
+  for(u16a=0;u16a<u16i;u16a++);
+}
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* End of File                                                                                                        */
 /*--------------------------------------------------------------------------------------------------------------------*/

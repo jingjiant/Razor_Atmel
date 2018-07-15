@@ -19,7 +19,8 @@ Header file for user_app1.c
 
 #ifndef __USER_APP1_H
 #define __USER_APP1_H
-
+#define M_CLK (1<<15)
+#define M_SDI (1<<14)
 /**********************************************************************************************************************
 Type Definitions
 **********************************************************************************************************************/
@@ -57,8 +58,8 @@ State Machine Declarations
 static void UserApp1SM_Idle(void);    
 
 static void UserApp1SM_Error(void);         
-
-
+static void Delay(u16 u16i);
+static void SendData(u8 u8Data);
 #endif /* __USER_APP1_H */
 
 
