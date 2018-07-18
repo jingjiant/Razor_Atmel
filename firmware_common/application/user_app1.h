@@ -19,8 +19,15 @@ Header file for user_app1.c
 
 #ifndef __USER_APP1_H
 #define __USER_APP1_H
-#define M_CLK (1<<15)
-#define M_SDI (1<<14)
+#define M_CLK (1<<14)
+#define M_SDI (1<<15)
+#define A (1<<3)
+#define B (1<<7)
+#define C (1<<6)
+#define D (1<<4)
+#define LE (1<<11)
+#define OE (1<<12)
+
 /**********************************************************************************************************************
 Type Definitions
 **********************************************************************************************************************/
@@ -60,6 +67,10 @@ static void UserApp1SM_Idle(void);
 static void UserApp1SM_Error(void);         
 static void Delay(u16 u16i);
 static void SendData(u8 u8Data);
+static void ABCD(u8 d,u8 c,u8 b,u8 a);
+static void display(u8 u8Paral,u8 au8Message[16][10]);
+static void Clear(void);
+static void CharData(void);
 #endif /* __USER_APP1_H */
 
 
