@@ -27,6 +27,11 @@ Header file for user_app1.c
 #define D (1<<4)
 #define LE (1<<11)
 #define OE (1<<12)
+#define F_out (u32)(1<<5)
+#define F_cs (1<<6)
+#define F_in (1<<7)
+#define F_clk (1<<8)
+#define  BaseAdd  0
 
 /**********************************************************************************************************************
 Type Definitions

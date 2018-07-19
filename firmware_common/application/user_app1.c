@@ -92,8 +92,7 @@ void UserApp1Initialize(void)
   AT91C_BASE_PIOA->PIO_OER    = 0X0000D9F9;
   AT91C_BASE_PIOA->PIO_SODR   = 0X00000020;
   AT91C_BASE_PIOA->PIO_CODR   = 0X000001D9;
-  //AT91C_BASE_PIOA->PIO_CODR   = OE; 
-  //AT91C_BASE_PIOA->PIO_SODR   = LE;
+
   CharData();
   
   /* If good initialization, set state to Idle */
