@@ -66,9 +66,6 @@ static void UserApp1SM_Idle(void);
 
 static void UserApp1SM_Error(void);         
 static void Delay(u16 u16i);
-static void SendData(u8 u8Data);
-static void ABCD(u8 d,u8 c,u8 b,u8 a);
-static void display(u8 u8Paral,u8 au8Message[16][10]);
 static void Clear(void);
 static void CharData(void);
 #endif /* __USER_APP1_H */

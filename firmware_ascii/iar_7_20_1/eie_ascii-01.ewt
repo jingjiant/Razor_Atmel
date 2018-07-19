@@ -235,6 +235,9 @@
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\exceptions.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\GetWord.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\interrupts.h</name>
       </file>
       <file>
@@ -264,6 +267,9 @@
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\utilities.h</name>
       </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\Write-Read-Data.h</name>
+      </file>
     </group>
     <group>
       <name>Source</name>
@@ -281,6 +287,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\exceptions.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\GetWord.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\interrupts.c</name>
@@ -311,6 +320,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\utilities.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\Write-Read-Data.c</name>
       </file>
     </group>
   </group>
