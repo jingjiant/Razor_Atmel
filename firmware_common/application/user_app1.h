@@ -32,6 +32,7 @@ Header file for user_app1.c
 #define F_in (1<<7)
 #define F_clk (1<<8)
 #define  BaseAdd  0
+#define U16_USER_INPUT_BUFFER_SIZE  (u16)(DEBUG_SCANF_BUFFER_SIZE + 1)  
 
 /**********************************************************************************************************************
 Type Definitions
@@ -69,10 +70,13 @@ State Machine Declarations
 ***********************************************************************************************************************/
 static void UserApp1SM_Idle(void);    
 
-static void UserApp1SM_Error(void);         
-static void Delay(u16 u16i);
+static void UserApp1SM_Error(void);        
+void Delay(u16 u16i);
 static void Clear(void);
-static void CharData(void);
+static void ChangeWord(u8 *au8,u8 u8Count);
+static void QuChuData(void);
+static void CunData(void);
+
 #endif /* __USER_APP1_H */
 
 

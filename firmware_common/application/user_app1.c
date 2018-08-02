@@ -42,7 +42,7 @@ All Global variable names shall start with "G_UserApp1"
 ***********************************************************************************************************************/
 /* New variables */
 volatile u32 G_u32UserApp1Flags;                       /* Global state flags */
-
+volatile u8 u8CharNumber;
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Existing variables (defined in other files -- should all contain the "extern" keyword) */
@@ -51,6 +51,8 @@ extern volatile u32 G_u32ApplicationFlags;             /* From main.c */
 
 extern volatile u32 G_u32SystemTime1ms;                /* From board-specific source file */
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
+extern u8 G_au8DebugScanfBuffer[];  /* From debug.c */
+extern u8 G_u8DebugScanfCharCount;  /* From debug.c */
 
 
 /***********************************************************************************************************************
@@ -59,7 +61,8 @@ Variable names shall start with "UserApp1_" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_StateMachine;            /* The state machine function pointer */
 //static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
-static u8 au8DataMessage[16][10];
+extern  u8 au8DataMessage[16][10];
+extern  u8 au8CharSave[][16];
 
 /**********************************************************************************************************************
 Function Definitions
@@ -92,8 +95,23 @@ void UserApp1Initialize(void)
   AT91C_BASE_PIOA->PIO_OER    = 0X0000D9F9;
   AT91C_BASE_PIOA->PIO_SODR   = 0X00000020;
   AT91C_BASE_PIOA->PIO_CODR   = 0X000001D9;
-
-  CharData();
+  AT91C_BASE_PIOA->PIO_PER    = 0x00000600;
+  AT91C_BASE_PIOA->PIO_OER    = 0x00000400;
+  
+  AT91C_BASE_PIOB->PIO_PER    = 0X000001E0;
+  AT91C_BASE_PIOB->PIO_OER    = 0X000001C0;
+  AT91C_BASE_PIOB->PIO_ODR    = 0X00000020;
+  
+  
+  At24c02_Serial_Read(0x00,&au8CharSave[0][0],256,0XA1,0XA0);
+  At24c02_Serial_Read(0x00,&au8CharSave[16][0],256,0XA3,0XA2);
+  At24c02_Serial_Read(0x00,&au8CharSave[32][0],256,0XA5,0XA4);
+  At24c02_Serial_Read(0x00,&au8CharSave[48][0],256,0XA7,0XA6);
+  At24c02_Serial_Read(0x00,&au8CharSave[64][0],256,0XA9,0XA8);
+  At24c02_Serial_Read(0x00,&au8CharSave[80][0],256,0XAB,0XAA);
+  At24c02_Serial_Read(0x00,&au8CharSave[96][0],256,0XAD,0XAC);
+  At24c02_Serial_Read(0x00,&au8CharSave[112][0],256,0XAF,0XAE);
+  u8CharNumber = au8CharSave[112][0];
   
   /* If good initialization, set state to Idle */
   if( 1 )
@@ -145,26 +163,70 @@ static void UserApp1SM_Idle(void)
 {
   static u8 u8hangshu = 0;
   static u16 u16Count = 0;
-  //static u8 au8YiChuData[16][2];
-  //static u8 u8a,u8b;
+  static u8 au8Char[129];
+  static bool bFlag;
   
-  for(u8hangshu=0;u8hangshu<16;u8hangshu++)
+  
+  Clear();
+  display(u8hangshu,au8DataMessage);
+  u8hangshu++;
+  if(u8hangshu==16)
   {
-    Clear();
-    display(u8hangshu,au8DataMessage);
-    Delay(100);
+    u8hangshu = 0;
   }
   
   u16Count++;
   
-  if(u16Count==120)
+  if(u16Count==150)
   {
     CharData();
     u16Count = 0;
   }
   
+
+    if(G_au8DebugScanfBuffer[G_u8DebugScanfCharCount-1]==0x0D)
+    {
+      u8CharNumber=DebugScanf(au8Char);
+      bFlag = TRUE;
+      if(au8Char[0]==0x0A)
+      {
+        for(u8 u8a=0;u8a<(u8CharNumber-1);u8a++)
+        {
+          au8Char[u8a] = au8Char[u8a+1];
+        }
+      }
+      for(u8 u8a=0;u8a<128;u8a++)
+      {
+        for(u8 u8b=0;u8b<16;u8b++)
+        {
+          au8CharSave[u8a][u8b]= 0X00;
+        }
+      } 
+    }
+  if(bFlag)
+  {
+    bFlag = FALSE;
+    ChangeWord(au8Char,u8CharNumber);
+    au8CharSave[112][0] = u8CharNumber;
+    At24c02_Serial_Write(0x00,&au8CharSave[0][0],256,0XA0);
+    At24c02_Serial_Write(0x00,&au8CharSave[16][0],256,0XA2);
+    At24c02_Serial_Write(0x00,&au8CharSave[32][0],256,0XA4);
+    At24c02_Serial_Write(0x00,&au8CharSave[48][0],256,0XA6);
+    At24c02_Serial_Write(0x00,&au8CharSave[64][0],256,0XA8);
+    At24c02_Serial_Write(0x00,&au8CharSave[80][0],256,0XAA);
+    At24c02_Serial_Write(0x00,&au8CharSave[96][0],256,0XAC);
+    At24c02_Serial_Write(0x00,&au8CharSave[112][0],256,0XAE);
+    //DebugPrintf("\n\rDisplay Succeed!\n\r");
+    CharData();
+  }
   
   
+  /*static u8 au81[][3]={{0xFA,0XFE,0XFD},{0xF3,0XF4,0XF5},{0xF6,0XF7,0XF8},
+};
+  static u8 au82[3][3];
+  
+  At24c02_Serial_Write(0x00,*au81,9);
+  At24c02_Serial_Read(0x00,*au82,9);*/
 } /* end UserApp1SM_Idle() */
 
 
@@ -177,7 +239,7 @@ static void UserApp1SM_Error(void)
 
 
 
-static void Delay(u16 u16i)
+void Delay(u16 u16i)
 {
   static u16 u16a;
   for(u16a=0;u16a<u16i;u16a++);
@@ -193,93 +255,26 @@ static void Clear(void)
   }
 }
 
-static void CharData(void)      //¶ÔÊý¾ÝÒÆÎ»ÊµÏÖ¹ö¶¯
+static void ChangeWord(u8 *au8,u8 u8Count)
 {
-  static u8 au8CharSave[][16]={
-    {0x22,0x22,0xFF,0x22,0x40,0x7F,0x41,0x81,0x7D,0x45,0x45,0x7D,0x45,0x01,0x0A,0x04},/*"¾´",0*/
-    {0x20,0x20,0xA0,0x3E,0x44,0x44,0x44,0xA4,0x28,0x28,0x10,0x10,0x28,0x28,0x44,0x82},/*"¾´",0*/
-    {0x08,0x08,0x14,0x12,0x21,0x40,0xBE,0x00,0x11,0x09,0x49,0x22,0x22,0x07,0x78,0x20},/*"½£",1*/
-    {0x04,0x04,0x04,0x24,0x24,0xA4,0x24,0x24,0x24,0x24,0x24,0x24,0x04,0x84,0x14,0x08},/*"½£",1*/
-    /*{0x00,0x00,0x00,0x10,0x38,0x7C,0xFE,0xFE,0xFC,0xF8,0xF0,0xE0,0xC0,0x80,0x00,0x00},//"Î´ÃüÃûÎÄ¼þ",0
-    {0x00,0x00,0x00,0x08,0x1C,0x3E,0x7F,0x7F,0x3F,0x1F,0x0F,0x07,0x03,0x01,0x00,0x00},//"Î´ÃüÃûÎÄ¼þ",0
-    {0x80,0x00,0xFC,0x04,0xF4,0x04,0xFC,0x04,0xF4,0x04,0xF4,0x14,0x12,0x12,0xF1,0x10},//"ÌÆ",0
-    {0x00,0x01,0x7F,0x01,0x1F,0x11,0x7F,0x11,0x1F,0x01,0x1F,0x10,0x10,0x10,0x1F,0x10},//"ÌÆ",0
-    {0x84,0x88,0x88,0x40,0x3F,0x84,0x04,0x3C,0xE4,0x24,0xA4,0xA4,0xA4,0x22,0x2A,0x11},//"ì½",1
-    {0x00,0x00,0x7F,0x00,0x04,0x3F,0x0A,0x11,0x7F,0x10,0x17,0x14,0x17,0x10,0x14,0x08},//"ì½",1
-    {0x44,0x44,0xFF,0x44,0x02,0xFE,0x82,0x81,0xBE,0xA2,0xA2,0xBE,0xA2,0x80,0x50,0x20},//"¾´",0
-    {0x04,0x04,0x05,0x7C,0x22,0x22,0x22,0x25,0x14,0x14,0x08,0x08,0x14,0x14,0x22,0x41},//"¾´",0
-    {0x08,0x08,0xFC,0x12,0xA1,0x08,0x08,0x24,0x24,0x26,0xA5,0x24,0x24,0x04,0x04,0xC4},//"óã",1
-    {0x02,0x02,0x7E,0x09,0x10,0x02,0x02,0x7E,0x11,0x11,0x12,0x0A,0x04,0x0A,0x11,0x60},//"óã",1
-    {0x08,0x88,0x08,0x08,0x3F,0x24,0xE4,0x24,0x24,0x12,0x14,0x08,0x14,0x22,0x21,0x00},//"æ¥",2
-    {0x00,0x1F,0x10,0x0A,0x04,0x08,0x7F,0x44,0x24,0x04,0x04,0x04,0x04,0x04,0x05,0x02},//"æ¥",2*/
-    
-    
-  };
+  //static u16 u16Word[]={'¾´','½£','ÈÝ','Ò×','Ì«','ÄÑ','¾´','Ð¡','Óã','ÌÇ'};
+  static u8 *au8WordData;
+  static u8 a,b;
   
-  static u8 au8yichudata[16];                             
-  static u8 u8a,u8b,u8d=0;
-  static bool bFalg = FALSE;
-  
-  
-  if(!bFalg)
+  u8Count = (u8Count-1)/2;
+  for(a=0;a<u8Count;a++)
   {
-    u8d=sizeof(au8CharSave)/16;
+    au8WordData = GetZiKuWord(au8[a*2],au8[a*2+1]);
     
-    if(u8d<10)
+    for(b=0;b<16;b++)
     {
-      for(u8a=0;u8a<(10-u8d);u8a++)
-      {
-        for(u8b=0;u8b<16;u8b++)
-        {
-          au8CharSave[u8d+u8a][u8b]= 0X00;
-        }
-      }
-    }
-    
-    if(u8d<10)
-    {
-      u8d=10;
+      au8CharSave[a*2][b] = *(au8WordData+2*b);
+      au8CharSave[a*2+1][b] = *(au8WordData+2*b+1);
     }
   }
-  
-  
-  if(bFalg)
-  {
-    for(u8a=0;u8a<16;u8a++)
-    {
-      au8yichudata[u8a]=(au8CharSave[0][u8a]&0x80);
-    }
-    
-    for(u8a=0;u8a<u8d;u8a++)
-    {
-      for(u8b=0;u8b<16;u8b++)
-      {
-        au8CharSave[u8a][u8b]=(au8CharSave[u8a][u8b]<<1);
-      }
-      if(u8a<(u8d-1))
-      {
-        for(u8b=0;u8b<16;u8b++)
-        {
-          au8CharSave[u8a][u8b]=au8CharSave[u8a][u8b]|((au8CharSave[u8a+1][u8b]&0X80)>>7);
-        }
-      }
-    }
-    
-    for(u8a=0;u8a<16;u8a++)
-    {
-      au8CharSave[u8d-1][u8a]=au8CharSave[u8d-1][u8a]|(au8yichudata[u8a]>>7);
-    }
-  }
-  bFalg = TRUE;
-  for(u8a=0;u8a<10;u8a++)
-  {
-    for(u8b=0;u8b<16;u8b++)
-    {
-      au8DataMessage[u8b][u8a]=au8CharSave[u8a][u8b];
-    }
-  }
-  
 }
+
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* End of File                                                                                                        */
 /*--------------------------------------------------------------------------------------------------------------------*/

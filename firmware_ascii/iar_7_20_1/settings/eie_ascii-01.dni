@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=547070418
+Checksum=-1714997451
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -25,8 +25,17 @@ TraceBufferSize=0x00010000
 TraceStallIfFIFOFull=0x00000000
 TracePortSize=0x00000000
 [array_types]
-Fmt0=u8[10]	4	0
-Fmt1=u8[16]	4	0
+Fmt0=u16[10]	4	0
+Fmt1=u16[20]	4	0
+Fmt2=u8[10]	4	0
+Fmt3=u8[16]	4	0
+Fmt4=u8[200]	4	0
+Fmt5=u8[2048]	4	0
+Fmt6=u8[20]	4	0
+Fmt7=u8[21]	4	0
+Fmt8=u8[3]	4	0
+[watch_formats]
+Fmt0={W}3:G_u32SystemFlags	4	0
 [Log file]
 LoggingEnabled=_ 0
 LogFile=_ ""
@@ -45,7 +54,8 @@ Exclusions=
 [Disassemble mode]
 mode=0
 [Breakpoints2]
-Count=0
+Bp0=_ 0 "EMUL_CODE" "{$PROJ_DIR$\..\..\firmware_common\drivers\sam3u_i2c.c}.152.5" 0 0 1 "" 0 "" 0
+Count=1
 [Aliases]
 Count=0
 SuppressDialog=0

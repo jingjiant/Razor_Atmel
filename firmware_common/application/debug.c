@@ -404,6 +404,7 @@ void SystemStatusReport(void)
   if( bNoFailedTasks)
   {
     DebugPrintf(au8SystemPassed);
+    DebugPrintf("\n\rplease input Word and WordNumber <= 10\n\r");
   }
   
   DebugLineFeed();

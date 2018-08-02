@@ -93,6 +93,9 @@ Includes
 #include "user_app3.h"
 #include "Write-Read-Data.h"
 #include "GetWord.h"
+#include "MoveDisplay.h"
+#include "iic.h"
+#include "FM24C16.h"
 
 
 /**********************************************************************************************************************

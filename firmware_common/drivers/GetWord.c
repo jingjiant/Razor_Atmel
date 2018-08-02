@@ -3,14 +3,10 @@
 
 #include "configuration.h"
 
- u32  GB2312_Addr(u16 u16data)
+ u32  GB2312_Addr(u8 MSB,u8 LSB)
 {
-	static u8 MSB,LSB;
 	static u32 Address;
         
-
-        MSB = (u16data>>8)&0XFF;
-	LSB = u16data&0XFF;
 
 	if(MSB >=0xA4 && MSB <= 0Xa8 && LSB >=0xA1) 
 	Address = BaseAdd; 

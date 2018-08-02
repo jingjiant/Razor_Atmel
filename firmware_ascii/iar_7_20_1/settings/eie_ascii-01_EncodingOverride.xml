@@ -6,7 +6,19 @@
     <encoding>System</encoding>
   </override>
   <override>
+    <path>C:\Users\Administrator\Documents\GitHub\Razor_Atmel\firmware_common\drivers\FM24C16.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>C:\Users\Administrator\Documents\GitHub\Razor_Atmel\firmware_common\drivers\MoveDisplay.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
     <path>C:\Users\Administrator\Documents\GitHub\Razor_Atmel\firmware_common\drivers\Write-Read-Data.c</path>
+    <encoding>System</encoding>
+  </override>
+  <override>
+    <path>C:\Users\Administrator\Documents\GitHub\Razor_Atmel\firmware_common\drivers\iic.c</path>
     <encoding>System</encoding>
   </override>
 </userOverrides>

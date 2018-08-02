@@ -235,7 +235,13 @@
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\exceptions.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\FM24C16.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\GetWord.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\iic.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\interrupts.h</name>
@@ -248,6 +254,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\messaging.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\MoveDisplay.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\sam3u_i2c.h</name>
@@ -289,7 +298,13 @@
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\exceptions.c</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\FM24C16.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\GetWord.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\iic.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\interrupts.c</name>
@@ -302,6 +317,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\messaging.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\MoveDisplay.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\sam3u_i2c.c</name>
