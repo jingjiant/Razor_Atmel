@@ -96,7 +96,7 @@ Includes
 #include "MoveDisplay.h"
 #include "iic.h"
 #include "FM24C16.h"
-
+#include "spi.h"
 
 /**********************************************************************************************************************
 !!!!! External peripheral assignments

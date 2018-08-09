@@ -1945,12 +1945,6 @@
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\adc12.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\..\firmware_common\drivers\ant.h</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\firmware_common\drivers\ant_api.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\antdefines.h</name>
       </file>
       <file>
@@ -1999,6 +1993,9 @@
         <name>$PROJ_DIR$\..\drivers\sdcard.h</name>
       </file>
       <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\spi.h</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\timer.h</name>
       </file>
       <file>
@@ -2012,12 +2009,6 @@
       <name>Source</name>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\adc12.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\firmware_common\drivers\ant.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\..\firmware_common\drivers\ant_api.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\buttons.c</name>
@@ -2060,6 +2051,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\drivers\sdcard.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\..\firmware_common\drivers\spi.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\..\firmware_common\drivers\timer.c</name>

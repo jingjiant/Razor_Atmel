@@ -737,13 +737,13 @@ Handles the enabled SSP2 interrupts.
 void SSP2_IRQHandler(void)
 {
   /* Set the current ISR pointers to SSP2 targets */
-  SSP_psCurrentISR = &SSP_Peripheral2;                      /* Current SSP ISR */
-  SSP_pu32SspApplicationFlagsISR = &G_u32Ssp2ApplicationFlags; /* Current SSP application status flags */
-  SSP_u32Int2Count++;
+  //SSP_psCurrentISR = &SSP_Peripheral2;                      /* Current SSP ISR */
+  //SSP_pu32SspApplicationFlagsISR = &G_u32Ssp2ApplicationFlags; /* Current SSP application status flags */
+  //SSP_u32Int2Count++;
 
   /* Go to common SSP interrupt using psCurrentSspISR since the SSP cannot interrupt itself */
-  SspGenericHandler();
- 
+  //SspGenericHandler();
+  spi_slave_interupt();
 } /* end SSP2_IRQHandler() */
 
 

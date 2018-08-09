@@ -59,14 +59,14 @@ void main(void)
 
   ButtonInitialize();
   TimerInitialize();  
-  SspInitialize();
+  //SspInitialize();
   TWIInitialize();
   Adc12Initialize();
   
   LcdInitialize();
   LedInitialize();
-  AntInitialize();
-  AntApiInitialize();
+  //AntInitialize();
+  //AntApiInitialize();
   SdCardInitialize();
 
   /* Application initialization */
@@ -74,6 +74,7 @@ void main(void)
   UserApp1Initialize();
   UserApp2Initialize();
   UserApp3Initialize();
+  SpiInitialize();
 
   
   /* Exit initialization */
@@ -90,20 +91,21 @@ void main(void)
     ButtonRunActiveState();
     UartRunActiveState();
     TimerRunActiveState(); 
-    SspRunActiveState();
+    //SspRunActiveState();
     TWIRunActiveState();
     Adc12RunActiveState();
     MessagingRunActiveState();
     DebugRunActiveState();
     LcdRunActiveState();
-    AntRunActiveState();
-    AntApiRunActiveState();
+    //AntRunActiveState();
+    //AntApiRunActiveState();
     SdCardRunActiveState();
 
     /* Applications */
     UserApp1RunActiveState();
     UserApp2RunActiveState();
     UserApp3RunActiveState();
+    SPI_SLAVE_RunActiveState();
     
     /* System sleep*/
     HEARTBEAT_OFF();

@@ -9,7 +9,7 @@ TriggerName=main
 LimitSize=0
 ByteLimit=50
 [DebugChecksum]
-Checksum=-1714997451
+Checksum=575942546
 [Exceptions]
 StopOnUncaught=_ 0
 StopOnThrow=_ 0
@@ -28,12 +28,13 @@ TracePortSize=0x00000000
 Fmt0=u16[10]	4	0
 Fmt1=u16[20]	4	0
 Fmt2=u8[10]	4	0
-Fmt3=u8[16]	4	0
-Fmt4=u8[200]	4	0
-Fmt5=u8[2048]	4	0
-Fmt6=u8[20]	4	0
-Fmt7=u8[21]	4	0
-Fmt8=u8[3]	4	0
+Fmt3=u8[129]	4	0
+Fmt4=u8[16]	4	0
+Fmt5=u8[200]	4	0
+Fmt6=u8[2048]	4	0
+Fmt7=u8[20]	4	0
+Fmt8=u8[21]	4	0
+Fmt9=u8[3]	4	0
 [watch_formats]
 Fmt0={W}3:G_u32SystemFlags	4	0
 [Log file]
@@ -47,7 +48,7 @@ LogFile=_ ""
 Enabled=0
 [DriverProfiling]
 Enabled=0
-Mode=0
+Mode=1
 Graph=0
 Symbiont=0
 Exclusions=

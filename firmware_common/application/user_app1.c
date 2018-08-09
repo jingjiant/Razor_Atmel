@@ -53,7 +53,8 @@ extern volatile u32 G_u32SystemTime1ms;                /* From board-specific so
 extern volatile u32 G_u32SystemTime1s;                 /* From board-specific source file */
 extern u8 G_au8DebugScanfBuffer[];  /* From debug.c */
 extern u8 G_u8DebugScanfCharCount;  /* From debug.c */
-
+extern bool bNewMessage;
+extern u8 spi_slave_au8Message[128];
 
 /***********************************************************************************************************************
 Global variable definitions with scope limited to this local application.
@@ -165,7 +166,8 @@ static void UserApp1SM_Idle(void)
   static u16 u16Count = 0;
   static u8 au8Char[129];
   static bool bFlag;
-  
+  static u8 au8uBleMessage[18];
+  static u8 u8NumberByte=0;
   
   Clear();
   display(u8hangshu,au8DataMessage);
@@ -203,6 +205,39 @@ static void UserApp1SM_Idle(void)
         }
       } 
     }
+  
+    if(bNewMessage)
+    {
+      bNewMessage = FALSE;
+      memcpy(au8uBleMessage, (const u8*)&spi_slave_au8Message[2], spi_slave_au8Message[1]);
+      if(au8uBleMessage[0]==0x80)
+      {
+        memcpy(&au8Char[u8NumberByte], (const u8*)&au8uBleMessage[2], au8uBleMessage[1]);
+        u8NumberByte = u8NumberByte+au8uBleMessage[1];
+      }
+      if(au8uBleMessage[0]==0x88)
+      {
+        memcpy(&au8Char[u8NumberByte], (const u8*)&au8uBleMessage[2], au8uBleMessage[1]);
+        u8NumberByte = u8NumberByte+au8uBleMessage[1];
+        
+        for(u8 a=0;a<u8NumberByte;a++)
+        {
+          au8Char[a]=au8Char[a]+0xA0;
+        }
+        
+        for(u8 u8a=0;u8a<128;u8a++)
+      {
+        for(u8 u8b=0;u8b<16;u8b++)
+        {
+          au8CharSave[u8a][u8b]= 0X00;
+        }
+      }
+      bFlag = TRUE;
+      u8CharNumber = u8NumberByte+2;
+      u8NumberByte = 0;
+      }
+    }
+  
   if(bFlag)
   {
     bFlag = FALSE;
