@@ -92,8 +92,8 @@ Promises:
 void UserApp1Initialize(void)
 {
   
-  AT91C_BASE_PIOA->PIO_PER    = 0X0000D9F9;           
-  AT91C_BASE_PIOA->PIO_OER    = 0X0000D9F9;
+  AT91C_BASE_PIOA->PIO_PER    = 0X0000D9F9;           //对字库芯片，存储芯片，4-16译码芯片和
+  AT91C_BASE_PIOA->PIO_OER    = 0X0000D9F9;           //串转并芯片的引脚进行配置  
   AT91C_BASE_PIOA->PIO_SODR   = 0X00000020;
   AT91C_BASE_PIOA->PIO_CODR   = 0X000001D9;
   AT91C_BASE_PIOA->PIO_PER    = 0x00000600;
@@ -104,7 +104,7 @@ void UserApp1Initialize(void)
   AT91C_BASE_PIOB->PIO_ODR    = 0X00000020;
   
   
-  At24c02_Serial_Read(0x00,&au8CharSave[0][0],256,0XA1,0XA0);
+  At24c02_Serial_Read(0x00,&au8CharSave[0][0],256,0XA1,0XA0);   //初始化的时候对存储芯片中的存储的汉字数据进行读取
   At24c02_Serial_Read(0x00,&au8CharSave[16][0],256,0XA3,0XA2);
   At24c02_Serial_Read(0x00,&au8CharSave[32][0],256,0XA5,0XA4);
   At24c02_Serial_Read(0x00,&au8CharSave[48][0],256,0XA7,0XA6);
@@ -162,20 +162,20 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-  static u8 u8hangshu = 0;
-  static u16 u16Count = 0;
-  static u8 au8Char[129];
-  static bool bFlag;
-  static u8 au8uBleMessage[18];
-  static u8 u8NumberByte=0;
-  static bool bChar = FALSE;
+  static u8 u8hangshu = 0;      //每1ms刷新一行
+  static u16 u16Count = 0;      //150ms进行一次移位
+  static u8 au8Char[129];       //存放从蓝牙或串口发过来的数据
+  static bool bFlag;            //对新收到的汉字数据进行存储标志
+  static u8 au8uBleMessage[18]; //存放蓝牙发过来的数据，蓝牙一次最多可发18个有用字节
+  static u8 u8NumberByte=0;     //蓝牙发过来的总字节数
+  static bool bChar = FALSE;    //串口输入汉字然后将汉字的区位码显示到串口标志
   static u8 u8a = 0;
   static u8 u8b = 0;
-  static u8 au8WordNeima[2]={"00"};
+  static u8 au8WordNeima[2]={"00"};     //存放一个汉字的区码或位码，将其通过串口打印
   
-  Clear();
-  display(u8hangshu,au8DataMessage);
-  u8hangshu++;
+  Clear();                              //每刷一行之前对串转并芯片中的数据清0
+  display(u8hangshu,au8DataMessage);    //显示LED灯每一行的状态
+  u8hangshu++;                          
   if(u8hangshu==16)
   {
     u8hangshu = 0;
@@ -185,14 +185,14 @@ static void UserApp1SM_Idle(void)
   
   if(u16Count==150)
   {
-    CharData();
+    CharData();                         //对数据进行移位，每150ms移一次
     u16Count = 0;
   }
   
   
-  if(G_au8DebugScanfBuffer[G_u8DebugScanfCharCount-1]==0x0D)
+  if(G_au8DebugScanfBuffer[G_u8DebugScanfCharCount-1]==0x0D)    //对串口输入的数据进行处理
   {
-    u8CharNumber=DebugScanf(au8Char);
+    u8CharNumber=DebugScanf(au8Char);                           
     if(au8Char[0]==0x0A)
     {
       for(u8 u8a=0;u8a<(u8CharNumber-1);u8a++)
@@ -201,15 +201,15 @@ static void UserApp1SM_Idle(void)
       }
       u8CharNumber--;
     }
-    if(au8Char[0]=='A')
-    {
+    if(au8Char[0]=='A')                                         //如果串口输入的第一个字节是'A'，则将'A'
+    {                                                           //后面的汉字的区位码显示到串口
       bChar = TRUE;
     }
     
     else
-    {
+    {                                                           //如果输入的第一个字节不是'A'，
       bFlag = TRUE;
-      for(u8 u8a=0;u8a<128;u8a++)
+      for(u8 u8a=0;u8a<128;u8a++)                               //则更新存储芯片中的数据
       {
         for(u8 u8b=0;u8b<16;u8b++)
         {
@@ -228,7 +228,7 @@ static void UserApp1SM_Idle(void)
       if(u8a<u8CharNumber-2)
       {
         au8Char[u8a+1] = au8Char[u8a+1]-0xA0;
-        au8WordNeima[0] = HexToASCIICharUpper(au8Char[u8a+1]/16);
+        au8WordNeima[0] = HexToASCIICharUpper(au8Char[u8a+1]/16);       //将汉字的区位码显示到串口
         au8WordNeima[1] = HexToASCIICharUpper(au8Char[u8a+1]%16);
         DebugPrintf(au8WordNeima);
         DebugPrintf(" ");
@@ -243,15 +243,15 @@ static void UserApp1SM_Idle(void)
     }
   }
   
-  if(bNewMessage)
+  if(bNewMessage)                               //处理蓝牙发过来的数据
   {
     bNewMessage = FALSE;
     memcpy(au8uBleMessage, (const u8*)&spi_slave_au8Message[2], spi_slave_au8Message[1]);
-    if(au8uBleMessage[0]==0x80)
-    {
-      memcpy(&au8Char[u8NumberByte], (const u8*)&au8uBleMessage[2], au8uBleMessage[1]);
-      u8NumberByte = u8NumberByte+au8uBleMessage[1];
-    }
+    if(au8uBleMessage[0]==0x80)                                                         //如果蓝牙发过来的数据的第一个字节是0x80，
+    {                                                                                   //则将发过来的数据保存在 数组au8Char[129]里面                                       
+      memcpy(&au8Char[u8NumberByte], (const u8*)&au8uBleMessage[2], au8uBleMessage[1]); //直到发过来的第一个字节是0x88,
+      u8NumberByte = u8NumberByte+au8uBleMessage[1];                                    //收到0x88命令后将更新led屏显示的汉字和              
+    }                                                                                   //存储芯片中的数据                          
     if(au8uBleMessage[0]==0x88)
     {
       memcpy(&au8Char[u8NumberByte], (const u8*)&au8uBleMessage[2], au8uBleMessage[1]);
@@ -280,9 +280,9 @@ static void UserApp1SM_Idle(void)
     bFlag = FALSE;
     ChangeWord(au8Char,u8CharNumber);
     au8CharSave[112][0] = u8CharNumber;
-    At24c02_Serial_Write(0x00,&au8CharSave[0][0],256,0XA0);
-    At24c02_Serial_Write(0x00,&au8CharSave[16][0],256,0XA2);
-    At24c02_Serial_Write(0x00,&au8CharSave[32][0],256,0XA4);
+    At24c02_Serial_Write(0x00,&au8CharSave[0][0],256,0XA0);         //通过汉字的内码得到汉字在字库芯片中的地址
+    At24c02_Serial_Write(0x00,&au8CharSave[16][0],256,0XA2);        //然后取出汉字的数据在LED屏上显示并    
+    At24c02_Serial_Write(0x00,&au8CharSave[32][0],256,0XA4);        //将数据存储到存储芯片中    
     At24c02_Serial_Write(0x00,&au8CharSave[48][0],256,0XA6);
     At24c02_Serial_Write(0x00,&au8CharSave[64][0],256,0XA8);
     At24c02_Serial_Write(0x00,&au8CharSave[80][0],256,0XAA);
@@ -310,14 +310,16 @@ static void UserApp1SM_Error(void)
 } /* end UserApp1SM_Error() */
 
 
-
+//函数名：Delay()
+//功能：延时一段时间
 void Delay(u16 u16i)
 {
   static u16 u16a;
   for(u16a=0;u16a<u16i;u16a++);
 }
 
-
+//函数名：Clear(void)
+//功能：清除刷屏前串转并芯片中的数据
 static void Clear(void)
 {
   static u8 a=0;
@@ -326,10 +328,10 @@ static void Clear(void)
     SendData(0X00);
   }
 }
-
+//函数名：ChangeWord()
+//功能：通过汉字的内码得到汉字在字库芯片中的32个字节数据
 static void ChangeWord(u8 *au8,u8 u8Count)
 {
-  //static u16 u16Word[]={'敬','剑','容','易','太','难','敬','小','鱼','糖'};
   static u8 *au8WordData;
   static u8 a,b;
   

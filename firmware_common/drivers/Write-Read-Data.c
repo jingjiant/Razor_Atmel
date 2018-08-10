@@ -2,6 +2,8 @@
 
 #include "configuration.h"
 
+//函数名：SendData()
+//功能： 向串转并芯片发送一个直接的数据
  void SendData(u8 u8Data)         //发送一个字节
 {
   static u8 u8DataSize = 0;
@@ -33,7 +35,8 @@
   
 }
 
-
+//函数名：ABCD()
+//功能：改变点亮的行数，每1ms切换下一行
 void ABCD(u8 d,u8 c,u8 b,u8 a)   //选择点亮哪一行
 {
   if(a==1)
@@ -77,6 +80,8 @@ void ABCD(u8 d,u8 c,u8 b,u8 a)   //选择点亮哪一行
   }
 }
 
+//函数名：display()
+//功能：LED屏显示汉字
 void display(u8 u8Paral,u8 au8Message[16][10])  //刷屏显示
 {
   switch(u8Paral)

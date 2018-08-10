@@ -3,7 +3,10 @@
 
 #include "configuration.h"
 
- u32  GB2312_Addr(u8 MSB,u8 LSB)
+//函数名：GB2312_Addr()
+//功能：通过汉字的内码得到其在字库芯片中
+//      16*16点阵数据的地址
+u32  GB2312_Addr(u8 MSB,u8 LSB)
 {
 	static u32 Address;
         
@@ -18,10 +21,11 @@
 	return 	Address;
 }
 
- void  SendComdData(u8 u8data)
+//函数名：SendComdData()
+//功能：向字库芯片发送命令
+void  SendComdData(u8 u8data)
 {
     u8 i;
-  
   //AT91C_BASE_PIOB->PIO_SODR = F_clk;  // SCLK=1;
   
   for(i=0;i<8;i++)	  
@@ -41,8 +45,10 @@
   }
   
 }
-  
- u8 ReceiveData(void)
+
+//函数名：ReceiveData()
+//功能：从字库芯片读取数据
+u8 ReceiveData(void)
 {
    u8 RT_data = 0;
   AT91C_BASE_PIOB->PIO_SODR = F_clk; // SCLK=1;

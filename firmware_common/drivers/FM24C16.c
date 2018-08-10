@@ -3,7 +3,7 @@
 
 #include "configuration.h"
 
-//Function:初始化AT24C02
+//Function:初始化FM24C16
 //Description：IO口属于空闲,准备开始通信
 //Input:无
 //Output:无
@@ -15,7 +15,7 @@ void AT24C02_Init(void)
 }
 
 //Function:写一个字节
-//Description：向AT24C02的任意地址写入一个字节数据
+//Description：向FM24C16的任意地址写入一个字节数据
 //Input:写入的地址和数据
 //Output:无
 //Return:无
@@ -35,7 +35,7 @@ void At24c02_Write_Byte(u8 addr,u8 dat,u8 write)
 }
 
 //Function:指定地址读一个字节
-//Description：向AT24C02的指定地址读出一个字节数据
+//Description：向FM24C16的指定地址读出一个字节数据
 //Input:读地址
 //Output:无
 //Return:读到的数据
@@ -60,7 +60,7 @@ u8 At24c02_Read_Byte(u8 addr,u8 read,u8 write)
 }
 
 //Function:任意地址写入一串数据
-//Description：向AT24C02写入一串数据
+//Description：向FM24C16写入一串数据
 //Input:写地址,写数据,数据长度
 //Output:无
 //Return:无
@@ -76,7 +76,7 @@ void At24c02_Serial_Write(u8 Writeaddr,u8 *Str,u16 Len,u8 write)
 }
 
 //Function:指定地址读出一串数据
-//Description：向AT24C02读出一串数据
+//Description：向FM24C16读出一串数据
 //Input:读地址,读数据,数据长度
 //Output:无
 //Return:无
