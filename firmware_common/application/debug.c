@@ -983,7 +983,7 @@ until the command is processed.
 void DebugSM_CheckCmd(void)        
 {
   static u8 au8CommandHeader[] = "en+c";
-  static u8 au8InvalidCommand[] = "\nInvalid command\n\n\r"; 
+  static u8 au8InvalidCommand[] = "\n\r  \n\n\r"; 
   bool bGoodCommand = TRUE;
   u8 u8Index;
   s8 s8Temp;
